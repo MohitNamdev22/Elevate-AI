@@ -9,7 +9,6 @@ function App() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-blue-200">
       <h1 className="text-4xl font-bold text-blue-600">Hello Tailwind!</h1>
-      <h1 className="text-4xl font-bold text-red-600">Hello!</h1>
     </div>
   )
 }
