@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaGithub, FaTwitter, FaLinkedin, FaInstagram, FaSearch, FaMapMarkerAlt, FaCheck, FaStar } from 'react-icons/fa';
+import { FaGithub, FaTwitter, FaLinkedin, FaInstagram, FaSearch, FaMapMarkerAlt, FaCheck, FaFlag, FaStar } from 'react-icons/fa';
 import elevateAILogo from '../assets/elevateai-logo.svg';
 import backgroundGrid from '../assets/home/background-grid.svg';
 import image1 from '../assets/home/image1.svg';
@@ -7,6 +7,7 @@ import image2 from '../assets/home/image2.svg';
 import image3 from '../assets/home/image3.svg';
 import image4 from '../assets/home/image4.svg';
 import gmailIcon from '../assets/home/gmail.svg';
+import Footer from '../components/Footer';
 
 const GridBackground = () => (
     <div className="absolute inset-0 z-0">
@@ -180,23 +181,23 @@ const HeroSection = () => {
 
 const StatsSection = () => {
     return (
-        <div className="container mx-auto px-20 py-16">
+        <div className="container mx-auto px-20 py-16 bg-[#FBFBFB]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-44 items-center">
                 {/* Left Side - Text Content */}
                 <div>
-                    <a href="#" className="text-blue-500 flex items-center space-x-2 mb-3">
-                        <span>🔗</span> <span className="underline">More about ElevateAI</span>
+                    <a href="#" className="text-blue-600 flex items-center space-x-2 mb-3">
+                        <span><FaFlag /></span> <span className="">More about ElevateAI</span>
                     </a>
                     <h2 className="text-[28px] font-semibold text-gray-800 leading-tight">
-    Unlock Your True Potential And
-    <br />
-    Discover A World Of Opportunities
-    <br />
-    That Align With Your Skills, Interests,
-    <br />
-    And Aspirations
-</h2>
-                    
+                        Unlock Your True Potential And
+                        <br />
+                        Discover A World Of Opportunities
+                        <br />
+                        That Align With Your Skills, Interests,
+                        <br />
+                        And Aspirations
+                    </h2>
+
                 </div>
 
                 {/* Right Side - Stats */}
@@ -225,11 +226,14 @@ const StatsSection = () => {
 
 
 
+
+
 const Home = () => {
     return (
         <div>
             <HeroSection />
             <StatsSection />
+            <Footer />
         </div>
     );
 };
