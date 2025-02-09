@@ -178,11 +178,58 @@ const HeroSection = () => {
     );
 };
 
+const StatsSection = () => {
+    return (
+        <div className="container mx-auto px-20 py-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-44 items-center">
+                {/* Left Side - Text Content */}
+                <div>
+                    <a href="#" className="text-blue-500 flex items-center space-x-2 mb-3">
+                        <span>🔗</span> <span className="underline">More about ElevateAI</span>
+                    </a>
+                    <h2 className="text-[28px] font-semibold text-gray-800 leading-tight">
+    Unlock Your True Potential And
+    <br />
+    Discover A World Of Opportunities
+    <br />
+    That Align With Your Skills, Interests,
+    <br />
+    And Aspirations
+</h2>
+                    
+                </div>
+
+                {/* Right Side - Stats */}
+                <div className="grid grid-cols-2 gap-8 text-gray-700">
+                    <div>
+                        <h3 className="text-3xl font-bold">100K+</h3>
+                        <p className="text-gray-500">Active Students</p>
+                    </div>
+                    <div>
+                        <h3 className="text-3xl font-bold">57K+</h3>
+                        <p className="text-gray-500">People Hired</p>
+                    </div>
+                    <div>
+                        <h3 className="text-3xl font-bold">20K+</h3>
+                        <p className="text-gray-500">Companies</p>
+                    </div>
+                    <div>
+                        <h3 className="text-3xl font-bold">250+</h3>
+                        <p className="text-gray-500">Expert Mentors</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 
 const Home = () => {
     return (
         <div>
             <HeroSection />
+            <StatsSection />
         </div>
     );
 };
