@@ -3,7 +3,7 @@ import elevateaiLogo from '../assets/elevateai-logo.svg';
 
 const Footer = () => {
     return (
-        <footer className="bg-gray-900 text-gray-400 py-12">
+        <footer className="bg-gray-900 text-gray-400 pt-12 pb-4">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
                 {/* Logo & Socials */}
                 <div>
