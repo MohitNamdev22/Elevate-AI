@@ -56,7 +56,7 @@ const Sidebar = () => {
       </div>
 
       {/* Main Content Area - Adjusted for new navbar */}
-      <div className="ml-64 mt-16 flex-1">
+      <div className="ml-52 mt-16 flex-1">
         {/* Page Content */}
         <div className="p-6">
           {/* Content from child pages will be displayed here */}

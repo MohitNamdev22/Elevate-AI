@@ -6,7 +6,7 @@ const StudentDashboard = () => {
     <div className="flex bg-[#F8FAFC]">
 
         <Sidebar/>
-      <div className=" mt-16 pt-8  w-full min-h-screen">
+      <div className=" mt-16 p-8 w-full min-h-screen">
         {/* Welcome Section */}
         <div className="mb-6">
           <h2 className="text-2xl font-semibold">Welcome back, Mohit</h2>
