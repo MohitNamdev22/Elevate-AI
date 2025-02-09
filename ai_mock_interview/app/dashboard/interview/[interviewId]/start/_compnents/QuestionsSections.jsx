@@ -1,7 +1,7 @@
 import { Lightbulb, Volume2 } from 'lucide-react'
 import React from 'react'
 
-function QuestionsSections({activeQuestionIndex,mockInterViewQuestion}) {
+function QuestionsSections({activeQuestionIndex, mockInterViewQuestion}) {
     
   const textToSpeech = (text) => {
     if ("speechSynthesis" in window) {
@@ -12,7 +12,7 @@ function QuestionsSections({activeQuestionIndex,mockInterViewQuestion}) {
     }
   };
 
-   const questions = mockInterViewQuestion?.questions || [];
+  const questions = mockInterViewQuestion?.questions || [];
 
    return (
     <div className="p-5 border rounded-lg my-10">
@@ -29,6 +29,7 @@ function QuestionsSections({activeQuestionIndex,mockInterViewQuestion}) {
         ))}
       </div>
 
+      
       {questions[activeQuestionIndex] && (
         <>
           <h2 className="my-5 text-sm md:text-lg">
@@ -36,8 +37,7 @@ function QuestionsSections({activeQuestionIndex,mockInterViewQuestion}) {
           </h2>
           <Volume2
             className="cursor-pointer"
-            onClick={() => textToSpeech(mockInterViewQuestion[activeQuestionIndex].question)}
-
+            onClick={() => textToSpeech(questions[activeQuestionIndex].question)}
           />
         </>
       )}

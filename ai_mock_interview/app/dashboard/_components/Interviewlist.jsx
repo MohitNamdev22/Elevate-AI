@@ -16,7 +16,7 @@ function Interviewlist() {
         const result = await db
             .select()
             .from(MockInterview)
-            .where(eq(MockInterview.createdBy, "voravinay6@gmail.com"))
+            .where(eq(MockInterview.createdBy, "namdevmohit0@gmail.com"))
             .orderBy(desc(MockInterview.mockId));
         setInterviewList(result);
     }
