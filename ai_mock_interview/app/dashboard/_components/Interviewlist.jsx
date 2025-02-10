@@ -6,9 +6,14 @@ import { desc, eq } from 'drizzle-orm';
 import React, { useEffect, useState } from 'react'
 import InterviewItemCard from './InterviewItemCard';
 
+
+
 function Interviewlist() {
-    const {user}=useUser();
-    const [interviewList,setInterviewList]=useState([])
+
+    const { user, isLoaded } = useUser();
+    const [interviewList, setInterviewList] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     useEffect(()=>{
          GetInterviewList()
     },[user])
@@ -16,10 +21,15 @@ function Interviewlist() {
         const result = await db
             .select()
             .from(MockInterview)
-            .where(eq(MockInterview.createdBy, "default-email"))
+            .where(eq(MockInterview.createdBy, user?.primaryEmailAddress?.emailAddress))
             .orderBy(desc(MockInterview.mockId));
         setInterviewList(result);
     }
+
+    if (!isLoaded) return <div>Loading...</div>;
+    if (!user) return <div>Please sign in to view your interviews</div>;
+
+
   return (
     <div>
         <h2 className='font-medium text-xl'>Previous Mock Interview</h2>

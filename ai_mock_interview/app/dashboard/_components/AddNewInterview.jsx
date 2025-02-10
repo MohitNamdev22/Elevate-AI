@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,8 +25,14 @@ function AddNewInterview() {
   const [jobDesc, setJobDesc] = useState("");
   const [jobExperience, setJobExperience] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded) {
+      console.log("User email:", user?.primaryEmailAddress?.emailAddress);
+    }
+  }, [user, isLoaded]);
 
   const sanitizeJSON = (rawJSON) => {
     try {
@@ -40,6 +46,7 @@ function AddNewInterview() {
 
   const onSubmit = async (e) => {
     try {
+      
       setLoading(true);
       e.preventDefault();
 
@@ -58,7 +65,7 @@ function AddNewInterview() {
         jobPosition,
         jobDesc,
         jobExperience,
-        createdBy: user?.email || "default-email",
+        createdBy: user?.primaryEmailAddress?.emailAddress || "default-email",
         createdAt: moment().format("DD-MM-YYYY")
       }).returning();
 
