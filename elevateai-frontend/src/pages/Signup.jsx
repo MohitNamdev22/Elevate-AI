@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaGoogle, FaGithub, FaLinkedin, FaUpload } from 'react-icons/fa';
 import { SiLeetcode, SiCodeforces } from 'react-icons/si';
-import { Link } from 'react-router-dom';
 import elevateAILogo from '../assets/elevateai-logo.svg';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +10,145 @@ const Signup = () => {
   const [selectedRole, setSelectedRole] = useState('Student');
   const [profileImage, setProfileImage] = useState(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phoneNumber: '',
+    location: '',
+    role: 'Student',
+    profileImage: null,
+    studentDetails: {
+      areaOfInterest: '',
+      githubUrl: '',
+      codeforcesUrl: '',
+      leetcodeUrl: ''
+    },
+    recruiterDetails: {
+      companyName: '',
+      industry: '',
+      companySize: '',
+      companyWebsite: '',
+      jobTitle: '',
+      referralCode: ''
+    },
+    mentorDetails: {
+      jobTitle: '',
+      organization: '',
+      experienceLevel: '',
+      weeklyCommitment: '',
+      linkedinUrl: '',
+      githubUrl: '',
+      personalWebsite: ''
+    }
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleRoleSpecificChange = (e, type) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [`${type}Details`]: {
+        ...prev[`${type}Details`],
+        [name]: value
+      }
+    }));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          profileImage: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const validateForm = () => {
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError('Please fill in all required fields');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return false;
+    }
+    if (!acceptedTerms) {
+      setError('Please accept the terms and conditions');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    console.log("I am here")
+    e.preventDefault();
+    
+    //if (!validateForm()) return;
+    console.log("I am here2")
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/users/addUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          phoneNumber: formData.phoneNumber,
+          location: formData.location,
+          profileImage: formData.profileImage,
+          studentDetails: formData.role === 'Student' ? formData.studentDetails : undefined,
+          recruiterDetails: formData.role === 'Recruiter' ? formData.recruiterDetails : undefined,
+          mentorDetails: formData.role === 'Mentor' ? formData.mentorDetails : undefined
+        }),
+      });
+      console.log(response)
+      const data = await response.json();
+      console.log(data)
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // Registration successful
+      navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Common form fields for all roles
   const CommonFields = () => (
@@ -30,7 +169,7 @@ const Signup = () => {
               id="profile-upload"
               className="hidden"
               accept="image/*"
-              onChange={(e) => setProfileImage(e.target.files[0])}
+              onChange={handleImageUpload}
             />
             <label
               htmlFor="profile-upload"
@@ -47,7 +186,10 @@ const Signup = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
           <input
             type="text"
+            name="fullName"
             placeholder="Enter your full name"
+            value={formData.fullName}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -55,7 +197,10 @@ const Signup = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
           <input
             type="email"
+            name="email"
             placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -66,7 +211,10 @@ const Signup = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
           <input
             type="tel"
+            name="phoneNumber"
             placeholder="Enter phone number"
+            value={formData.phoneNumber}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -74,7 +222,10 @@ const Signup = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
           <input
             type="text"
+            name="location"
             placeholder="City, Country"
+            value={formData.location}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -86,7 +237,10 @@ const Signup = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
               placeholder="Create a password"
+              value={formData.password}
+              onChange={handleInputChange}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -103,7 +257,10 @@ const Signup = () => {
           <div className="relative">
             <input
               type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
               placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -124,7 +281,12 @@ const Signup = () => {
     <>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Area of Interest</label>
-        <select className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+        <select
+          name="areaOfInterest"
+          value={formData.studentDetails.areaOfInterest}
+          onChange={(e) => handleRoleSpecificChange(e, 'student')}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        >
           <option value="">Select your area of interest</option>
           <option value="web">Web Development</option>
           <option value="mobile">Mobile Development</option>
@@ -164,13 +326,21 @@ const Signup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
             <input
               type="text"
+              name="companyName"
               placeholder="Enter company name"
+              value={formData.recruiterDetails.companyName}
+              onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
-            <select className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <select
+              name="industry"
+              value={formData.recruiterDetails.industry}
+              onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
               <option value="">Select industry</option>
               <option value="tech">Technology</option>
               <option value="finance">Finance</option>
@@ -183,7 +353,12 @@ const Signup = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Company Size</label>
-            <select className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <select
+              name="companySize"
+              value={formData.recruiterDetails.companySize}
+              onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
               <option value="">Select company size</option>
               <option value="1-50">1-50 employees</option>
               <option value="51-200">51-200 employees</option>
@@ -195,7 +370,10 @@ const Signup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Company Website</label>
             <input
               type="url"
+              name="companyWebsite"
               placeholder="https://company.com"
+              value={formData.recruiterDetails.companyWebsite}
+              onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -205,7 +383,10 @@ const Signup = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
           <input
             type="text"
+            name="jobTitle"
             placeholder="Your job title"
+            value={formData.recruiterDetails.jobTitle}
+            onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -214,7 +395,10 @@ const Signup = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Referral Code (Optional)</label>
           <input
             type="text"
+            name="referralCode"
             placeholder="Enter referral code"
+            value={formData.recruiterDetails.referralCode}
+            onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -231,7 +415,10 @@ const Signup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
             <input
               type="text"
+              name="jobTitle"
               placeholder="Current job title"
+              value={formData.mentorDetails.jobTitle}
+              onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -239,7 +426,10 @@ const Signup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
             <input
               type="text"
+              name="organization"
               placeholder="Current organization"
+              value={formData.mentorDetails.organization}
+              onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -248,7 +438,12 @@ const Signup = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
-            <select className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <select
+              name="experienceLevel"
+              value={formData.mentorDetails.experienceLevel}
+              onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
               <option value="">Select experience level</option>
               <option value="junior">Junior (1-3 years)</option>
               <option value="mid">Mid-Level (4-6 years)</option>
@@ -258,7 +453,12 @@ const Signup = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Weekly Time Commitment</label>
-            <select className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <select
+              name="weeklyCommitment"
+              value={formData.mentorDetails.weeklyCommitment}
+              onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
               <option value="">Select availability</option>
               <option value="1-2">1-2 hours/week</option>
               <option value="3-5">3-5 hours/week</option>
@@ -275,7 +475,10 @@ const Signup = () => {
               <FaLinkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="url"
+                name="linkedinUrl"
                 placeholder="LinkedIn Profile URL"
+                value={formData.mentorDetails.linkedinUrl}
+                onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
                 className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -283,7 +486,10 @@ const Signup = () => {
               <FaGithub className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="url"
+                name="githubUrl"
                 placeholder="GitHub Profile URL"
+                value={formData.mentorDetails.githubUrl}
+                onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
                 className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -291,7 +497,10 @@ const Signup = () => {
               <FaUpload className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="url"
+                name="personalWebsite"
                 placeholder="Personal Website URL"
+                value={formData.mentorDetails.personalWebsite}
+                onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
                 className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -359,7 +568,7 @@ const Signup = () => {
 
         {/* Form Fields */}
         <div className="bg-white p-8 rounded-lg shadow-sm space-y-6">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <CommonFields />
             {selectedRole === 'Student' && <StudentFields />}
             {selectedRole === 'Recruiter' && <RecruiterFields />}
@@ -401,9 +610,9 @@ const Signup = () => {
             <button
               type="submit"
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!acceptedTerms}
+              disabled={!acceptedTerms || loading}
             >
-              {selectedRole === 'Student' ? 'Continue' : 'Complete Registration'}
+              {loading ? 'Loading...' : selectedRole === 'Student' ? 'Continue' : 'Complete Registration'}
             </button>
 
             {/* Login Link */}
