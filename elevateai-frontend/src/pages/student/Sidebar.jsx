@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaTachometerAlt, FaMap, FaBriefcase, FaUserGraduate, FaFileAlt, FaChalkboardTeacher, FaBell, FaUserCircle } from "react-icons/fa";
+import { FaTachometerAlt, FaMap, FaBriefcase, FaUserGraduate, FaFileAlt, FaChalkboardTeacher, FaBell, FaUserCircle, FaHome } from "react-icons/fa";
 import elevateaiLogo from '../../assets/elevateai-logo.svg';
 const Sidebar = () => {
   const [active, setActive] = useState("Dashboard");
 
   const menuItems = [
-    { name: "Dashboard", icon: <FaTachometerAlt />, path: "/student/dashboard" },
+    { name: "Dashboard", icon: <FaHome />, path: "/student/dashboard" },
     { name: "Roadmaps", icon: <FaMap />, path: "/student/roadmaps" },
     { name: "Opportunities", icon: <FaBriefcase />, path: "/student/opportunities" },
     { name: "AI-Mock Interviews", icon: <FaUserGraduate />, path: "/student/mock-interviews" },

@@ -5,6 +5,7 @@ import Signup from './pages/Signup'
 import StudentDashboard from './pages/student/StudentDashboard'
 import './App.css'
 import Roadmap from './pages/student/Roadmap'
+import Opportunities from './pages/student/Oppotunities'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/roadmaps" element={<Roadmap />} />
+        <Route path="/student/opportunities" element={<Opportunities />} />
       </Routes>
     </Router>
   )
