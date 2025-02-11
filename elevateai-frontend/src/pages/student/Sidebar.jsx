@@ -43,7 +43,9 @@ const Sidebar = () => {
             className="px-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <FaBell className="text-gray-600 text-xl cursor-pointer hover:text-blue-600" />
+          <Link to="/student/profile">
           <FaUserCircle className="text-gray-600 text-2xl cursor-pointer hover:text-blue-600" />
+          </Link>
         </div>
       </div>
 
