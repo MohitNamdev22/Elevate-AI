@@ -7,6 +7,7 @@ import './App.css'
 import Roadmap from './pages/student/Roadmap'
 import Opportunities from './pages/student/Oppotunities'
 import Mentorship from './pages/student/Mentorship'
+import Resume from './pages/student/Resume'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/student/roadmaps" element={<Roadmap />} />
         <Route path="/student/opportunities" element={<Opportunities />} />
         <Route path="/student/mentorship" element={<Mentorship />} />
+        <Route path="/student/resume-generator" element={<Resume />} />
       </Routes>
     </Router>
   )
