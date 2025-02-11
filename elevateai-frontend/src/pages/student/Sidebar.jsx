@@ -1,9 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaTachometerAlt, FaMap, FaBriefcase, FaUserGraduate, FaFileAlt, FaChalkboardTeacher, FaBell, FaUserCircle, FaHome } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { 
+  FaTachometerAlt, 
+  FaMap, 
+  FaBriefcase, 
+  FaUserGraduate, 
+  FaFileAlt, 
+  FaChalkboardTeacher, 
+  FaBell, 
+  FaUserCircle, 
+  FaHome 
+} from "react-icons/fa";
 import elevateaiLogo from '../../assets/elevateai-logo.svg';
+
 const Sidebar = () => {
-  const [active, setActive] = useState("Dashboard");
+  const location = useLocation();
 
   const menuItems = [
     { name: "Dashboard", icon: <FaHome />, path: "/student/dashboard" },
@@ -44,9 +55,8 @@ const Sidebar = () => {
               key={item.name}
               to={item.path}
               className={`flex items-center px-6 py-3 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition ${
-                active === item.name ? "bg-blue-600 text-white" : ""
+                location.pathname === item.path ? "bg-blue-600 text-white" : ""
               }`}
-              onClick={() => setActive(item.name)}
             >
               <span className="mr-3 text-lg">{item.icon}</span>
               {item.name}
