@@ -6,6 +6,7 @@ import StudentDashboard from './pages/student/StudentDashboard'
 import './App.css'
 import Roadmap from './pages/student/Roadmap'
 import Opportunities from './pages/student/Oppotunities'
+import Mentorship from './pages/student/Mentorship'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/roadmaps" element={<Roadmap />} />
         <Route path="/student/opportunities" element={<Opportunities />} />
+        <Route path="/student/mentorship" element={<Mentorship />} />
       </Routes>
     </Router>
   )
