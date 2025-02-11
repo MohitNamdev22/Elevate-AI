@@ -55,7 +55,7 @@ const Sidebar = () => {
               key={item.name}
               to={item.path}
               className={`flex items-center px-6 py-3 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition ${
-                location.pathname === item.path ? "bg-blue-600 text-white" : ""
+                location.pathname.startsWith(item.path) ? "bg-blue-600 text-white" : ""
               }`}
             >
               <span className="mr-3 text-lg">{item.icon}</span>

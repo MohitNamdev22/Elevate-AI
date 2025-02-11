@@ -1,5 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
+import { Link } from 'react-router-dom';
+
 
 const Resume = () => {
   const templates = [
@@ -63,9 +65,11 @@ const Resume = () => {
         <button className="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center gap-2">
           🤖 Generate Resume Using AI
         </button>
-        <button className="border border-gray-300 px-6 py-3 rounded-lg flex items-center gap-2">
-          ✍️ Build Manually
-        </button>
+        <Link to="/student/resume-generator/manual-resume">
+    <button className="border border-gray-300 px-6 py-3 rounded-lg flex items-center gap-2">
+      ✍️ Build Manually
+    </button>
+  </Link>
       </div>
 
       {/* Quick Preview Section */}

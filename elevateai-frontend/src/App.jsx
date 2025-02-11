@@ -22,7 +22,7 @@ function App() {
         <Route path="/student/opportunities" element={<Opportunities />} />
         <Route path="/student/mentorship" element={<Mentorship />} />
         <Route path="/student/resume-generator" element={<Resume />} />
-        <Route path="/student/manual-resume" element={<ManualResume />} />
+        <Route path="/student/resume-generator/manual-resume" element={<ManualResume />} />
       </Routes>
     </Router>
   )
