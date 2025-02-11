@@ -56,7 +56,7 @@ const Roadmap = () => {
             <Sidebar />
             <div className="mt-16 w-full min-h-screen">
                 {/* Header */}
-                <div className="bg-white p-4 m-[3px]">
+                <div className="bg-white p-6 m-[3px]">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h1 className="text-2xl font-bold">Your Personalized Learning Roadmap</h1>
@@ -123,41 +123,72 @@ const Roadmap = () => {
                 </div>
 
                 {/* Active Roadmap */}
-                <div className="mb-8">
+                <div className="mb-8 p-6">
                     <h2 className="text-xl font-bold mb-4">Active Roadmap: Full-Stack Developer</h2>
                     <div className="space-y-4">
                         {roadmapItems.map((item, index) => (
-                            <div key={index} className="flex items-center gap-4">
-                                <div className="w-4 h-4 rounded-full bg-blue-600"></div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-center">
+                            <div
+                                key={index}
+                                className="border border-gray-200 bg-white rounded-lg p-6 flex justify-between items-center"
+                            >
+                                {/* Left Section: Title & Duration */}
+                                <div className="flex flex-col">
+                                    <div className="flex items-center gap-2">
                                         <h3 className="font-medium">{item.title}</h3>
+                                        {item.status === 'completed' && (
+                                            <FaCheck className="text-green-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-1 mt-1">
+                                        <FaClock className="text-gray-600 text-sm" />
                                         <span className="text-sm text-gray-600">{item.duration}</span>
                                     </div>
-                                    <div className="h-2 bg-gray-200 rounded-full mt-2">
+                                </div>
+                                {/* Right Section: Progress Bar & Status Button */}
+                                <div className="flex items-center gap-6">
+                                    <div className="w-32 h-2 bg-gray-200 rounded-full">
                                         <div
-                                            className={`h-full rounded-full ${item.status === 'completed' ? 'bg-green-500 w-full' :
-                                                item.status === 'in-progress' ? 'bg-blue-500 w-3/4' :
-                                                    'w-0'
-                                                }`}
+                                            className="h-full rounded-full"
+                                            style={{
+                                                width:
+                                                    item.status === 'completed'
+                                                        ? '100%'
+                                                        : item.status === 'in-progress'
+                                                            ? '75%'
+                                                            : '0%',
+                                                backgroundColor:
+                                                    item.status === 'completed'
+                                                        ? '#22c55e'
+                                                        : item.status === 'in-progress'
+                                                            ? '#2563eb'
+                                                            : 'transparent'
+                                            }}
                                         ></div>
                                     </div>
+                                    <button
+                                        className={`text-sm px-2 py-1 rounded ${item.status === 'in-progress'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-gray-100 text-gray-700 opacity-50'
+                                            }`}
+                                        disabled={item.status !== 'in-progress'}
+                                    >
+                                        {item.status === 'completed'
+                                            ? 'Completed'
+                                            : item.status === 'in-progress'
+                                                ? 'Continue'
+                                                : 'Start'}
+                                    </button>
                                 </div>
-                                <span className="text-sm">
-                                    {item.status === 'completed' ? 'Completed' :
-                                        item.status === 'in-progress' ? 'Continue' :
-                                            'Start'}
-                                </span>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Progress Analytics */}
-                <div className="mb-8">
+                <div className="mb-8 p-6 bg-white m-6 border rounded-md">
                     <h2 className="text-xl font-bold mb-4">Progress Analytics</h2>
                     <div className="grid grid-cols-2 gap-8">
-                        <div>
+                        <div className='border rounded-md p-4'>
                             <h3 className="font-medium mb-4">Skills Progress</h3>
                             <div className="h-64">
                                 <LineChart width={400} height={250} data={progressData}>
@@ -167,7 +198,7 @@ const Roadmap = () => {
                                 </LineChart>
                             </div>
                         </div>
-                        <div>
+                        <div className='border rounded-md p-4'>
                             <h3 className="font-medium mb-4">Time Distribution</h3>
                             <div className="space-y-4">
                                 {timeData.map((item, index) => (
@@ -190,11 +221,11 @@ const Roadmap = () => {
                 </div>
 
                 {/* Recommended Roadmaps */}
-                <div>
+                <div className='p-6'>
                     <h2 className="text-xl font-bold mb-4">Recommended Roadmaps</h2>
                     <div className="grid grid-cols-3 gap-6">
                         {recommendedRoadmaps.map((roadmap, index) => (
-                            <div key={index} className="bg-white rounded-lg shadow p-4">
+                            <div key={index} className="bg-white rounded-lg shadow p-6">
                                 <img
                                     src={roadmap.image}
                                     alt={roadmap.title}
