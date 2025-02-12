@@ -1,251 +1,267 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis } from 'recharts';
-import Sidebar from './Sidebar';
-import { FaCalendar, FaChartPie, FaCheck, FaClock } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import axios from 'axios';
+import { FaCalendar, FaChartPie, FaCheck, FaClock } from 'react-icons/fa';
+import Sidebar from './Sidebar';
 
 const Roadmap = () => {
-    const progressData = [
-        { skill: 'HTML', progress: 90 },
-        { skill: 'CSS', progress: 85 },
-        { skill: 'JavaScript', progress: 70 },
-        { skill: 'React', progress: 65 },
-        { skill: 'Node.js', progress: 40 }
-    ];
+  const [careerGoal, setCareerGoal] = useState('');
+  const [timeframe, setTimeframe] = useState('3');
+  const [currentSkills, setCurrentSkills] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [roadmapResult, setRoadmapResult] = useState('');
 
-    const timeData = [
-        { name: 'HTML', time: 100 },
-        { name: 'CSS', time: 95 },
-        { name: 'JavaScript', time: 80 },
-        { name: 'React', time: 75 },
-        { name: 'Node.js', time: 45 }
-    ];
+  const progressData = [
+    { skill: 'HTML', progress: 90 },
+    { skill: 'CSS', progress: 85 },
+    { skill: 'JavaScript', progress: 70 },
+    { skill: 'React', progress: 65 },
+    { skill: 'Node.js', progress: 40 }
+  ];
 
-    const roadmapItems = [
-        { title: 'HTML & CSS Fundamentals', duration: '2 weeks', status: 'completed' },
-        { title: 'JavaScript Basics', duration: '3 weeks', status: 'completed' },
-        { title: 'React Fundamentals', duration: '4 weeks', status: 'in-progress' },
-        { title: 'Backend Development', duration: '4 weeks', status: 'not-started' }
-    ];
+  const stats = [
+    { icon: FaChartPie, value: '40%', label: 'Overall Progress' },
+    { icon: FaClock, value: '45h', label: 'Time Spent' },
+    { icon: FaCheck, value: '12', label: 'Completed Roadmaps' },
+    { icon: FaCalendar, value: '8', label: 'Days Remaining' }
+  ];
 
-    const recommendedRoadmaps = [
+  const generateRoadmap = async () => {
+    if (!careerGoal || !timeframe || !currentSkills) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const prompt = `
+        You are an AI career counselor specialized in creating learning roadmaps.
+        Create a detailed learning roadmap based on the following information:
+
+        Career Goal: ${careerGoal}
+        Timeframe: ${timeframe} months
+        Current Skills: ${currentSkills}
+
+        Provide the roadmap in the following format:
+
+        **OVERVIEW:**
+        - Brief summary of the learning journey
+
+        **MILESTONES:**
+        *Month 1:*
+        - Detailed weekly learning objectives
+        - Recommended resources
+        - Projects to complete
+
+        *Month 2:*
+        [Continue for each month]
+
+        **KEY SKILLS TO ACQUIRE:**
+        - List of crucial skills to develop
+
+        **PRACTICE PROJECTS:**
+        - Real-world project suggestions
+
+        **ADDITIONAL RESOURCES:**
+        - Books
+        - Online Courses
+        - Communities to join
+      `;
+
+      const response = await axios.post(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
         {
-            title: 'Data Science Fundamentals',
-            duration: '12 weeks',
-            level: 'Intermediate',
-            image: '/api/placeholder/300/200'
+          contents: [{ parts: [{ text: prompt }] }],
         },
         {
-            title: 'AI & Machine Learning',
-            duration: '16 weeks',
-            level: 'Advanced',
-            image: '/api/placeholder/300/200'
-        },
-        {
-            title: 'Cloud Computing',
-            duration: '10 weeks',
-            level: 'Intermediate',
-            image: '/api/placeholder/300/200'
+          headers: { "Content-Type": "application/json" },
+          params: { key: import.meta.env.VITE_GOOGLE_API_KEY },
         }
-    ];
+      );
 
-    return (
-        <div className="flex bg-[#F8FAFC]">
+      const roadmapText = response.data.candidates[0]?.content?.parts[0]?.text || 'No roadmap available';
+      setRoadmapResult(roadmapText);
+    } catch (error) {
+      console.error('Error generating roadmap:', error);
+      alert('Error generating roadmap. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            <Sidebar />
-            <div className="mt-16 w-full min-h-screen">
-                {/* Header */}
-                <div className="bg-white p-6 m-[3px]">
-                    <div className="flex justify-between items-center mb-8">
-                        <div>
-                            <h1 className="text-2xl font-bold">Your Personalized Learning Roadmap</h1>
-                            <p className="text-gray-600">Progressing toward your career goals, one step at a time</p>
-                        </div>
-                        <div className="flex flex-col items-center gap-1">
-                            <div className="w-20 h-20">
-                                <CircularProgressbar
-                                    value={40}
-                                    text={`40%`}
-                                    strokeWidth={8}
-                                    styles={buildStyles({
-                                        textColor: "#2563eb",
-                                        pathColor: "#2563eb",
-                                        trailColor: "#d6d6d6"
-                                    })}
-                                />
-                            </div>
-                            <p className="text-sm text-gray-600">Overall Progress</p>
-                        </div>
-                    </div>
+  const renderRoadmapResult = (text) => {
+    return text.split('\n').map((line, index) => {
+      if (line.startsWith('**')) {
+        return <h3 key={index} className="font-bold text-xl mt-6 mb-3 text-blue-600">
+          {line.replace(/\*\*/g, '')}
+        </h3>;
+      } else if (line.startsWith('*')) {
+        return <h4 key={index} className="font-semibold text-lg mt-4 mb-2 text-gray-700">
+          {line.replace(/\*/g, '')}
+        </h4>;
+      } else if (line.startsWith('-')) {
+        return <li key={index} className="ml-6 mb-2 text-gray-600">
+          {line.substring(1)}
+        </li>;
+      } else {
+        return <p key={index} className="mb-2 text-gray-600">{line}</p>;
+      }
+    });
+  };
 
-                    {/* Stats */}
+  return (
 
-                    <div className="grid grid-cols-4 gap-8 mb-4">
-                        <div className="flex flex-col items-start border border-gray-200 rounded-lg px-4 py-2">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-blue-100 p-1 rounded-lg">
-                                    <FaChartPie className="text-blue-600 text-md m-[3px]" />
-                                </div>
-                                <span className="text-xl font-bold text-black">40%</span>
-                            </div>
-                            <span className="text-sm text-gray-600 mt-1">Overall Progress</span>
-                        </div>
-                        <div className="flex flex-col items-start border border-gray-200 rounded-lg px-4 py-2">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-blue-100 p-1 rounded-lg">
-                                    <FaClock className="text-blue-600 text-md m-[3px]" />
-                                </div>
-                                <span className="text-xl font-bold text-black">45h</span>
-                            </div>
-                            <span className="text-sm text-gray-600 mt-1">Time Spent</span>
-                        </div>
-                        <div className="flex flex-col items-start border border-gray-200 rounded-lg px-4 py-2">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-blue-100 p-1 rounded-lg">
-                                    <FaCheck className="text-blue-600 text-md m-[3px]" />
-                                </div>
-                                <span className="text-xl font-bold text-black">12</span>
-                            </div>
-                            <span className="text-sm text-gray-600 mt-1">Completed Roadmaps</span>
-                        </div>
-                        <div className="flex flex-col items-start border border-gray-200 rounded-lg px-4 py-2">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-blue-100 p-1 rounded-lg">
-                                    <FaCalendar className="text-blue-600 text-md m-[3px]" />
-                                </div>
-                                <span className="text-xl font-bold text-black">8</span>
-                            </div>
-                            <span className="text-sm text-gray-600 mt-1">Days Remaining</span>
-                        </div>
-                    </div>
 
-                </div>
-
-                {/* Active Roadmap */}
-                <div className="mb-8 p-6">
-                    <h2 className="text-xl font-bold mb-4">Active Roadmap: Full-Stack Developer</h2>
-                    <div className="space-y-4">
-                        {roadmapItems.map((item, index) => (
-                            <div
-                                key={index}
-                                className="border border-gray-200 bg-white rounded-lg p-6 flex justify-between items-center"
-                            >
-                                {/* Left Section: Title & Duration */}
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-medium">{item.title}</h3>
-                                        {item.status === 'completed' && (
-                                            <FaCheck className="text-green-500" />
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-1 mt-1">
-                                        <FaClock className="text-gray-600 text-sm" />
-                                        <span className="text-sm text-gray-600">{item.duration}</span>
-                                    </div>
-                                </div>
-                                {/* Right Section: Progress Bar & Status Button */}
-                                <div className="flex items-center gap-6">
-                                    <div className="w-32 h-2 bg-gray-200 rounded-full">
-                                        <div
-                                            className="h-full rounded-full"
-                                            style={{
-                                                width:
-                                                    item.status === 'completed'
-                                                        ? '100%'
-                                                        : item.status === 'in-progress'
-                                                            ? '75%'
-                                                            : '0%',
-                                                backgroundColor:
-                                                    item.status === 'completed'
-                                                        ? '#22c55e'
-                                                        : item.status === 'in-progress'
-                                                            ? '#2563eb'
-                                                            : 'transparent'
-                                            }}
-                                        ></div>
-                                    </div>
-                                    <button
-                                        className={`text-sm px-2 py-1 rounded ${item.status === 'in-progress'
-                                                ? 'bg-blue-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 opacity-50'
-                                            }`}
-                                        disabled={item.status !== 'in-progress'}
-                                    >
-                                        {item.status === 'completed'
-                                            ? 'Completed'
-                                            : item.status === 'in-progress'
-                                                ? 'Continue'
-                                                : 'Start'}
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Progress Analytics */}
-                <div className="mb-8 p-6 bg-white m-6 border rounded-md">
-                    <h2 className="text-xl font-bold mb-4">Progress Analytics</h2>
-                    <div className="grid grid-cols-2 gap-8">
-                        <div className='border rounded-md p-4'>
-                            <h3 className="font-medium mb-4">Skills Progress</h3>
-                            <div className="h-64">
-                                <LineChart width={400} height={250} data={progressData}>
-                                    <XAxis dataKey="skill" />
-                                    <YAxis />
-                                    <Line type="monotone" dataKey="progress" stroke="#2563eb" />
-                                </LineChart>
-                            </div>
-                        </div>
-                        <div className='border rounded-md p-4'>
-                            <h3 className="font-medium mb-4">Time Distribution</h3>
-                            <div className="space-y-4">
-                                {timeData.map((item, index) => (
-                                    <div key={index}>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span>{item.name}</span>
-                                            <span>{item.time}h</span>
-                                        </div>
-                                        <div className="h-2 bg-gray-200 rounded-full">
-                                            <div
-                                                className="h-full bg-blue-500 rounded-full"
-                                                style={{ width: `${item.time}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Recommended Roadmaps */}
-                <div className='p-6'>
-                    <h2 className="text-xl font-bold mb-4">Recommended Roadmaps</h2>
-                    <div className="grid grid-cols-3 gap-6">
-                        {recommendedRoadmaps.map((roadmap, index) => (
-                            <div key={index} className="bg-white rounded-lg shadow p-6">
-                                <img
-                                    src={roadmap.image}
-                                    alt={roadmap.title}
-                                    className="w-full h-32 object-cover rounded mb-4"
-                                />
-                                <h3 className="font-medium mb-2">{roadmap.title}</h3>
-                                <div className="flex justify-between text-sm text-gray-600 mb-4">
-                                    <span>{roadmap.duration}</span>
-                                    <span>• {roadmap.level}</span>
-                                </div>
-                                <button className="w-full bg-blue-600 text-white rounded py-2">
-                                    Start Learning
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+    <div className="flex bg-[#F8FAFC]">
+        <Sidebar />
+      <div className="mt-16 w-full min-h-screen p-4">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-lg shadow">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Generate Your Learning Roadmap</h1>
+            <p className="text-gray-500 mt-2">Create a personalized learning path to achieve your career goals</p>
+          </div>
+          <div className="w-24">
+            <CircularProgressbar
+              value={40}
+              text={`40%`}
+              styles={buildStyles({
+                pathColor: '#3b82f6',
+                textColor: '#3b82f6',
+                trailColor: '#e5e7eb'
+              })}
+            />
+          </div>
         </div>
-    );
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <div key={index} className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <stat.icon className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-sm text-gray-500">{stat.label}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Roadmap Generator Form */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                What's your career goal?
+              </label>
+              <input
+                type="text"
+                value={careerGoal}
+                onChange={(e) => setCareerGoal(e.target.value)}
+                placeholder="e.g., Become a Full-Stack Developer"
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Timeframe (in months)
+              </label>
+              <select
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value)}
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+                <option value="12">12 months</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                What are your current skills?
+              </label>
+              <textarea
+                rows="4"
+                value={currentSkills}
+                onChange={(e) => setCurrentSkills(e.target.value)}
+                placeholder="List your current technical skills, experience level, etc."
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <button
+              onClick={generateRoadmap}
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 
+                disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Generating Roadmap...' : 'Generate Roadmap'}
+            </button>
+          </div>
+        </div>
+
+        {/* Progress Analytics */}
+        <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-4">Skills Progress</h3>
+            <div className="h-[300px]">
+              <LineChart
+                width={500}
+                height={300}
+                data={progressData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="skill" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="progress" stroke="#3b82f6" strokeWidth={2} />
+              </LineChart>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-4">Time Distribution</h3>
+            <div className="space-y-6">
+              {progressData.map((item, index) => (
+                <div key={index}>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium">{item.skill}</span>
+                    <span className="text-sm text-gray-500">{item.progress}%</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full">
+                    <div
+                      className="h-2 bg-blue-500 rounded-full"
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Generated Roadmap Result */}
+        {roadmapResult && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">Your Personalized Learning Roadmap</h2>
+            <div className="prose max-w-none">
+              {renderRoadmapResult(roadmapResult)}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Roadmap;

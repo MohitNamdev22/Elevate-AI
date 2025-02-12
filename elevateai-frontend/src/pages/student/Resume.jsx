@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
+import ResumeAnalyzer from './ResumeAnalyzer';
 
 
 const Resume = () => {

@@ -10,6 +10,8 @@ import Mentorship from './pages/student/Mentorship'
 import Resume from './pages/student/Resume'
 import ManualResume from './pages/student/ManualResume'
 import StudentProfile from './pages/student/StudentProfile'
+import ResumeAnalyzer from './pages/student/ResumeAnalyzer'
+
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
         <Route path="/student/mentorship" element={<Mentorship />} />
         <Route path="/student/resume-generator" element={<Resume />} />
         <Route path="/student/resume-generator/manual-resume" element={<ManualResume />} />
+        <Route path="/student/resume-analyzer" element={<ResumeAnalyzer />} />
         <Route path="/student/profile" element={<StudentProfile />} />
       </Routes>
     </Router>
