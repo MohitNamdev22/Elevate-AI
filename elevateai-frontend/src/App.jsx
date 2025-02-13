@@ -11,6 +11,7 @@ import Resume from './pages/student/Resume'
 import ManualResume from './pages/student/ManualResume'
 import StudentProfile from './pages/student/StudentProfile'
 import ResumeAnalyzer from './pages/student/ResumeAnalyzer'
+import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/student/resume-generator/manual-resume" element={<ManualResume />} />
         <Route path="/student/resume-analyzer" element={<ResumeAnalyzer />} />
         <Route path="/student/profile" element={<StudentProfile />} />
+        <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
       </Routes>
     </Router>
   )
