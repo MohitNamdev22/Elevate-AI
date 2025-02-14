@@ -16,6 +16,7 @@ import OpportunityListings from './pages/recruiter/OpportunityListing'
 import JobPostingForm from './pages/recruiter/JobPostingForm'
 import CandidatesAnalytics from './pages/recruiter/Candidates'
 import RecruiterCalendar from './pages/recruiter/Calendar'
+import { HiringChallenges, CreateChallenge } from './pages/recruiter/Challenges'
 
 
 function App() {
@@ -38,6 +39,8 @@ function App() {
         <Route path="/recruiter/opportunity-listing/jobpost" element={<JobPostingForm />} />
         <Route path="/recruiter/candidates" element={<CandidatesAnalytics />} />
         <Route path="/recruiter/calendar" element={<RecruiterCalendar />} />
+        <Route path="/recruiter/challenges" element={<HiringChallenges />} />
+        <Route path="/recruiter/challenges/create-challenge" element={<CreateChallenge />} />
 
       </Routes>
     </Router>

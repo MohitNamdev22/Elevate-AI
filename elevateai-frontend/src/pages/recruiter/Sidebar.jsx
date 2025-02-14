@@ -25,9 +25,8 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", icon: <FaHome />, path: "/recruiter/dashboard" },
     { name: "Opportunity Listing", icon: <FaBriefcase />, path: "/recruiter/opportunity-listing" },
-    { name: "Candidates", icon: <FaUsers />, path: "/recruiter/candidates" },
+    { name: "Candidates Analytics", icon: <FaUsers />, path: "/recruiter/candidates" },
     { name: "Calendar", icon: <FaCalendar />, path: "/recruiter/calendar" },
-    { name: "Analytics", icon: <FaChartBar />, path: "/recruiter/analytics" },
     { name: "Challenges", icon: <FaCode />, path: "/recruiter/challenges" },
   ];
 

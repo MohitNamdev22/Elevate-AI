@@ -64,7 +64,7 @@ const CandidatesAnalytics = () => {
       <div className="mt-16 p-8 w-full min-h-screen">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold">Your Candidates Overview</h1>
+          <h1 className="text-2xl font-semibold">Candidates Analytics</h1>
           <p className="text-gray-600">Track, evaluate, and manage applicants effortlessly</p>
         </div>
 
