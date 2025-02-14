@@ -5,47 +5,57 @@ import {
   FaFilter, 
   FaEnvelope, 
   FaPhone,
-  FaEllipsisV 
+  FaEllipsisV,
+  FaDownload,
+  FaShare
 } from 'react-icons/fa';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-const CandidatesOverview = () => {
-  // Sample data for statistics
+const CandidatesAnalytics = () => {
+  // Enhanced statistics data
   const stats = [
-    { label: 'Total Applications', value: 156, change: '+12%' },
-    { label: 'Shortlisted', value: 48, change: '+5%' },
-    { label: 'Pending Review', value: 28, change: '-3%' },
-    { label: 'Rejected', value: 12, change: '+2%' }
+    { label: 'Total Applications', value: 325, change: '+12%' },
+    { label: 'Shortlisted Candidates', value: 75, change: '+8%' },
+    { label: 'Top-Ranked Candidates', value: 10, change: '-3%' },
+    { label: 'Active Job Postings', value: 12, change: '+5%' },
+    { label: 'Average Time to Hire', value: '15 Days', change: '-10%' }
   ];
 
-  // Sample data for candidates
-  const candidates = [
+  // Enhanced candidates data
+  const bestMatchCandidates = [
     {
-      name: 'Sarah Wilson',
-      role: 'Senior Frontend Developer',
-      matchScore: 92,
-      experience: '5 years',
-      education: 'B.S. Computer Science',
-      skills: ['React', 'TypeScript', 'Node.js'],
-      status: 'Shortlisted'
+      name: 'Sarah Johnson',
+      role: 'Senior Software Engineer',
+      matchScore: 95,
+      skills: ['React', 'Node.js', 'Python'],
     },
     {
       name: 'Michael Chen',
-      role: 'Full Stack Developer',
-      matchScore: 88,
-      experience: '4 years',
-      education: 'M.S. Software Engineering',
-      skills: ['Python', 'Django', 'React'],
-      status: 'Reviewed'
+      role: 'Graphics Designer',
+      matchScore: 92,
+      skills: ['UI/UX', 'Figma', 'Design Systems'],
     },
     {
       name: 'Emily Rodriguez',
-      role: 'UX Designer',
-      matchScore: 85,
-      experience: '3 years',
-      education: 'B.A. Design',
-      skills: ['Figma', 'Adobe XD', 'Sketch'],
-      status: 'Pending'
+      role: 'Data Scientist',
+      matchScore: 88,
+      skills: ['Machine Learning', 'Python', 'SQL'],
     }
+  ];
+
+  // Distribution data for charts
+  const distributionData = [
+    { name: 'Frontend', total: 80, shortlisted: 20 },
+    { name: 'Backend', total: 60, shortlisted: 15 },
+    { name: 'Design', total: 40, shortlisted: 10 },
+    { name: 'Data', total: 30, shortlisted: 8 }
+  ];
+
+  const statusData = [
+    { name: 'Pending', value: 40, color: '#1E40AF' },
+    { name: 'Reviewed', value: 30, color: '#06B6D4' },
+    { name: 'Shortlisted', value: 20, color: '#22C55E' },
+    { name: 'Hired', value: 10, color: '#7C3AED' }
   ];
 
   return (
@@ -73,8 +83,8 @@ const CandidatesOverview = () => {
           </button>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
+        {/* Enhanced Statistics Cards */}
+        <div className="grid grid-cols-5 gap-6 mb-8">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
               <p className="text-gray-600">{stat.label}</p>
@@ -86,98 +96,99 @@ const CandidatesOverview = () => {
           ))}
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">Applications per Job</h3>
-            {/* Add bar chart component here */}
-            <div className="h-48 bg-gray-50 rounded flex items-end gap-4 p-4">
-              {[80, 60, 50, 40, 30].map((height, index) => (
-                <div
-                  key={index}
-                  className="bg-blue-500 w-16 rounded-t"
-                  style={{ height: `${height}%` }}
-                />
-              ))}
-            </div>
+        {/* Best-Match Candidates Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Best-Match Candidates</h2>
+            <a href="#" className="text-blue-600 text-sm">View All</a>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">Application Status</h3>
-            {/* Add pie chart component here */}
-            <div className="h-48 flex items-center justify-center">
-              <div className="w-32 h-32 rounded-full border-8 border-blue-500 border-r-orange-400 border-b-green-500" />
-            </div>
+          <div className="grid grid-cols-3 gap-6">
+            {bestMatchCandidates.map((candidate, index) => (
+              <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
+                <h3 className="font-semibold">{candidate.name}</h3>
+                <p className="text-sm text-gray-600 mb-3">{candidate.role}</p>
+                <div className="mb-3">
+                  <span className="text-sm text-gray-600">Match Score</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-full h-2 bg-gray-200 rounded-full">
+                      <div
+                        className="h-full bg-blue-600 rounded-full"
+                        style={{ width: `${candidate.matchScore}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium">{candidate.matchScore}%</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 mb-4">
+                  {candidate.skills.map((skill, skillIndex) => (
+                    <span
+                      key={skillIndex}
+                      className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button className="flex-1 px-3 py-2 border border-blue-600 text-blue-600 rounded-lg text-sm">
+                    View Profile
+                  </button>
+                  <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">
+                    Request Interview
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Candidates List */}
-        <div className="bg-white rounded-lg shadow-sm">
-          {candidates.map((candidate, index) => (
-            <div key={index} className="p-4 border-b last:border-b-0">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-4 mb-2">
-                    <h3 className="font-semibold">{candidate.name}</h3>
-                    <span className="text-sm text-gray-600">{candidate.role}</span>
-                  </div>
-                  <div className="flex items-center gap-6 mb-3">
-                    <div>
-                      <span className="text-sm text-gray-600">Match Score</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-24 h-2 bg-gray-200 rounded-full">
-                          <div
-                            className="h-full bg-blue-600 rounded-full"
-                            style={{ width: `${candidate.matchScore}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium">{candidate.matchScore}%</span>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-600">Experience</span>
-                      <p className="font-medium">{candidate.experience}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm text-gray-600">Education</span>
-                      <p className="font-medium">{candidate.education}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    {candidate.skills.map((skill, skillIndex) => (
-                      <span
-                        key={skillIndex}
-                        className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      candidate.status === 'Shortlisted'
-                        ? 'bg-green-50 text-green-600'
-                        : candidate.status === 'Reviewed'
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'bg-yellow-50 text-yellow-600'
-                    }`}
-                  >
-                    {candidate.status}
-                  </span>
-                  <div className="flex gap-3 text-gray-400">
-                    <button><FaEnvelope /></button>
-                    <button><FaPhone /></button>
-                    <button><FaEllipsisV /></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Analytics Charts */}
+        <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4">Candidate Distribution</h3>
+            <BarChart width={500} height={300} data={distributionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Bar dataKey="total" fill="#1E40AF" name="Total Applications" />
+              <Bar dataKey="shortlisted" fill="#22C55E" name="Shortlisted" />
+            </BarChart>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4">Candidate Status</h3>
+            <PieChart width={400} height={300}>
+              <Pie
+                data={statusData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+              >
+                {statusData.map((entry, index) => (
+                  <Cell key={index} fill={entry.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </div>
+        </div>
+
+        {/* Export & Share Section */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-medium">Export & Share</h3>
+          <div className="flex gap-4">
+            <button className="px-4 py-2 border rounded-lg text-gray-600 flex items-center gap-2">
+              <FaDownload /> Export
+            </button>
+            <button className="px-4 py-2 border rounded-lg text-gray-600 flex items-center gap-2">
+              <FaShare /> Share
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default CandidatesOverview;
+export default CandidatesAnalytics;

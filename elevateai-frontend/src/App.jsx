@@ -14,7 +14,7 @@ import ResumeAnalyzer from './pages/student/ResumeAnalyzer'
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
 import OpportunityListings from './pages/recruiter/OpportunityListing'
 import JobPostingForm from './pages/recruiter/JobPostingForm'
-import CandidatesOverview from './pages/recruiter/Candidates'
+import CandidatesAnalytics from './pages/recruiter/Candidates'
 import RecruiterCalendar from './pages/recruiter/Calendar'
 
 
@@ -36,7 +36,7 @@ function App() {
         <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
         <Route path="/recruiter/opportunity-listing" element={<OpportunityListings />} />
         <Route path="/recruiter/opportunity-listing/jobpost" element={<JobPostingForm />} />
-        <Route path="/recruiter/candidates" element={<CandidatesOverview />} />
+        <Route path="/recruiter/candidates" element={<CandidatesAnalytics />} />
         <Route path="/recruiter/calendar" element={<RecruiterCalendar />} />
 
       </Routes>
