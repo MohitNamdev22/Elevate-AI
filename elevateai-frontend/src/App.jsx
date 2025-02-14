@@ -17,6 +17,7 @@ import JobPostingForm from './pages/recruiter/JobPostingForm'
 import CandidatesAnalytics from './pages/recruiter/Candidates'
 import RecruiterCalendar from './pages/recruiter/Calendar'
 import { HiringChallenges, CreateChallenge } from './pages/recruiter/Challenges'
+import RecruiterProfile from './pages/recruiter/Profile'
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
         <Route path="/recruiter/calendar" element={<RecruiterCalendar />} />
         <Route path="/recruiter/challenges" element={<HiringChallenges />} />
         <Route path="/recruiter/challenges/create-challenge" element={<CreateChallenge />} />
+        <Route path="/recruiter/profile" element={<RecruiterProfile />} />
 
       </Routes>
     </Router>
