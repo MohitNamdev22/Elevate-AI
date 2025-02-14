@@ -96,6 +96,38 @@ const CandidatesAnalytics = () => {
           ))}
         </div>
 
+        {/* Analytics Charts */}
+        <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4">Candidate Distribution</h3>
+            <BarChart width={500} height={300} data={distributionData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Bar dataKey="total" fill="#1E40AF" name="Total Applications" />
+              <Bar dataKey="shortlisted" fill="#22C55E" name="Shortlisted" />
+            </BarChart>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4">Candidate Status</h3>
+            <PieChart width={400} height={300}>
+              <Pie
+                data={statusData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+              >
+                {statusData.map((entry, index) => (
+                  <Cell key={index} fill={entry.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </div>
+        </div>
+
         {/* Best-Match Candidates Section */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
@@ -139,38 +171,6 @@ const CandidatesAnalytics = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Analytics Charts */}
-        <div className="grid grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">Candidate Distribution</h3>
-            <BarChart width={500} height={300} data={distributionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Bar dataKey="total" fill="#1E40AF" name="Total Applications" />
-              <Bar dataKey="shortlisted" fill="#22C55E" name="Shortlisted" />
-            </BarChart>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">Candidate Status</h3>
-            <PieChart width={400} height={300}>
-              <Pie
-                data={statusData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
           </div>
         </div>
 
