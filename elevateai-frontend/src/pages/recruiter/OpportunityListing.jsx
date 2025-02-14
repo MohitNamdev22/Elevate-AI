@@ -8,6 +8,7 @@ import {
   FaFilter,
   FaMapMarkerAlt 
 } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const OpportunityListings = () => {
   return (
@@ -20,9 +21,11 @@ const OpportunityListings = () => {
             <h1 className="text-2xl font-semibold">Opportunity Listings</h1>
             <p className="text-gray-600">Manage postings, track applications, and find top talent easily.</p>
           </div>
+        <Link to="/recruiter/opportunity-listing/jobpost">
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
             + Post a New Job
           </button>
+          </Link>
         </div>
 
         {/* Stats Cards */}

@@ -13,6 +13,7 @@ import StudentProfile from './pages/student/StudentProfile'
 import ResumeAnalyzer from './pages/student/ResumeAnalyzer'
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard'
 import OpportunityListings from './pages/recruiter/OpportunityListing'
+import JobPostingForm from './pages/recruiter/JobPostingForm'
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/student/profile" element={<StudentProfile />} />
         <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
         <Route path="/recruiter/opportunity-listing" element={<OpportunityListings />} />
+        <Route path="/recruiter/opportunity-listing/jobpost" element={<JobPostingForm />} />
       </Routes>
     </Router>
   )
