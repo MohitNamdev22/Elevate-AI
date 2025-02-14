@@ -25,7 +25,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Dashboard", icon: <FaHome />, path: "/mentor/dashboard" },
-    { name: "Manage Session", icon: <FaLaptop />, path: "/mentor/manage-session" },
+    { name: "Manage Session", icon: <FaLaptop />, path: "/mentor/manage-sessions" },
   ];
 
   return (

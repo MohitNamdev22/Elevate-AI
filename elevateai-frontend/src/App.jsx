@@ -19,6 +19,7 @@ import RecruiterCalendar from './pages/recruiter/Calendar'
 import { HiringChallenges, CreateChallenge } from './pages/recruiter/Challenges'
 import RecruiterProfile from './pages/recruiter/Profile'
 import MentorDashboard from './pages/mentor/Dashboard'
+import ManageSessions from './pages/mentor/ManageSessions'
 
 
 function App() {
@@ -44,7 +45,8 @@ function App() {
         <Route path="/recruiter/challenges" element={<HiringChallenges />} />
         <Route path="/recruiter/challenges/create-challenge" element={<CreateChallenge />} />
         <Route path="/recruiter/profile" element={<RecruiterProfile />} />
-        <Route path="/mentors/dashboard" element={<MentorDashboard />} />
+        <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+        <Route path="/mentor/manage-sessions" element={<ManageSessions />} />
 
       </Routes>
     </Router>
