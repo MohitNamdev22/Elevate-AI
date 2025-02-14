@@ -7,6 +7,7 @@ import {
     BarElement
   } from 'chart.js';
   import { Doughnut, Bar } from 'react-chartjs-2';
+  import { Link } from "react-router-dom";
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement);
 
@@ -54,9 +55,12 @@ const RecruiterDashboard = () => {
                         <p className="text-gray-600">Find your ideal talent today</p>
                     </div>
                     <div className="space-x-3">
+        <Link to="/recruiter/opportunity-listing/jobpost">
+
                         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             Post New Job
                         </button>
+                        </Link>
                         <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                             Schedule Interview
                         </button>

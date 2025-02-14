@@ -23,12 +23,12 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: "Dashboard", icon: <FaHome />, path: "/student/dashboard" },
-    { name: "Opportunity Listing", icon: <FaBriefcase />, path: "/student/roadmaps" },
-    { name: "Candidates", icon: <FaUsers />, path: "/student/opportunities" },
-    { name: "Calendar", icon: <FaCalendar />, path: "/student/mock-interviews" },
-    { name: "Analytics", icon: <FaChartBar />, path: "/student/resume-analyzer" },
-    { name: "Challenges", icon: <FaCode />, path: "/student/resume-generator" },
+    { name: "Dashboard", icon: <FaHome />, path: "/recruiter/dashboard" },
+    { name: "Opportunity Listing", icon: <FaBriefcase />, path: "/recruiter/opportunity-listing" },
+    { name: "Candidates", icon: <FaUsers />, path: "/recruiter/candidates" },
+    { name: "Calendar", icon: <FaCalendar />, path: "/recruiter/calendar" },
+    { name: "Analytics", icon: <FaChartBar />, path: "/recruiter/analytics" },
+    { name: "Challenges", icon: <FaCode />, path: "/recruiter/challenges" },
   ];
 
   return (
