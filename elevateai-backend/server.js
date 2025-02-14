@@ -19,10 +19,13 @@ app.use(morgan("dev"));
 
 // Import Routes
 const userRoutes = require("./routes/userRoutes");
-
+const internshipRoutes  = require('./routes/internshipRoutes')
+const hackathonRoutes = require('./routes/hackathonRoutes')
 
 // Mount Routes
 app.use("/api/users", userRoutes);
+app.use('/api/internships', internshipRoutes);
+app.use('/api/hackathon',hackathonRoutes)
 
 
 // Error Handling Middleware
