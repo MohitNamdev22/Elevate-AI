@@ -8,6 +8,7 @@ import image3 from '../assets/home/image3.svg';
 import image4 from '../assets/home/image4.svg';
 import gmailIcon from '../assets/home/gmail.svg';
 import Footer from '../components/Footer';
+import { Link } from 'react-router-dom';
 
 const GridBackground = () => (
     <div className="absolute inset-0 z-0">
@@ -64,10 +65,14 @@ const HeroSection = () => {
                     </nav>
 
                     <div className="flex items-center space-x-4">
+                    <Link to="http://localhost:3001/sign-in">
                         <button className="text-gray-600">Login</button>
+                        </Link>
+                        <Link to="http://localhost:3001/sign-up">
                         <button className="bg-blue-50 text-blue-600 px-4 border-blue-600 border py-1 rounded-2xl">
                             Register Now
                         </button>
+                        </Link>
                     </div>
                 </header>
 
