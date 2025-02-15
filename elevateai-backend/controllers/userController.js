@@ -17,6 +17,8 @@ class UserController {
         mentorDetails
       } = req.body;
 
+      console.log(role,recruiterDetails)
+
       // Check if user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
