@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEye, FaEyeSlash, FaGoogle, FaGithub, FaLinkedin, FaUpload } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle, FaGithub, FaLinkedin, FaTwitter, FaUpload } from 'react-icons/fa';
 import { SiLeetcode, SiCodeforces } from 'react-icons/si';
 import elevateAILogo from '../assets/elevateai-logo.svg';
 import { Link, useNavigate } from 'react-router-dom';
@@ -15,13 +15,10 @@ const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phoneNumber: '',
-    location: '',
-    role: selectedRole,
-    profileImage: null,
+  phoneNumber: '',
+  location: '',
+  role: selectedRole,
+  profileImage: null,
     studentDetails: {
       areaOfInterest: '',
       githubUrl: '',
@@ -40,10 +37,17 @@ const Signup = () => {
       jobTitle: '',
       organization: '',
       experienceLevel: '',
-      weeklyCommitment: '',
-      linkedinUrl: '',
-      githubUrl: '',
-      personalWebsite: ''
+      linkedinUrl: '', // Changed from twitterUrl
+      aboutMe: '',
+      hourlyRate: '',
+      responseTime: '',
+      education: {
+        degree: '',
+        university: '',
+        year: ''
+      },
+      technicalSkills: '', // Changed from array to string
+      availableSlots: ''
     }
   });
 
@@ -57,13 +61,27 @@ const Signup = () => {
 
   const handleRoleSpecificChange = (e, type) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [`${type}Details`]: {
-        ...prev[`${type}Details`],
-        [name]: value
-      }
-    }));
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [`${type}Details`]: {
+          ...prev[`${type}Details`],
+          [parent]: {
+            ...prev[`${type}Details`][parent],
+            [child]: value
+          }
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [`${type}Details`]: {
+          ...prev[`${type}Details`],
+          [name]: value
+        }
+      }));
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -121,8 +139,6 @@ const Signup = () => {
         },
         body: JSON.stringify({
           fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
           role: formData.role,
           phoneNumber: formData.phoneNumber,
           location: formData.location,
@@ -169,13 +185,13 @@ const Signup = () => {
       <div className="w-full max-w-2xl space-y-8">
         {/* Title Section */}
         <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-2">
-            Join ElevateAI—Tailored Just for You!
-          </h1>
-          <p className="text-gray-600">
-            Select your role to get started with a personalized experience
-          </p>
-        </div>
+  <h1 className="text-2xl font-semibold mb-2">
+    Complete Your Profile
+  </h1>
+  <p className="text-gray-600">
+    Help us personalize your experience
+  </p>
+</div>
 
         {/* Role Selection */}
         <div className="bg-gray-100 p-1 rounded-lg">
@@ -494,108 +510,122 @@ const Signup = () => {
               </>
             )}
 
-            {selectedRole === 'Mentor' && (
-              <>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                      <input
-                        type="text"
-                        name="jobTitle"
-                        placeholder="Current job title"
-                        value={formData.mentorDetails.jobTitle}
-                        onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
-                      <input
-                        type="text"
-                        name="organization"
-                        placeholder="Current organization"
-                        value={formData.mentorDetails.organization}
-                        onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
+{selectedRole === 'Mentor' && (
+  <>
+    <div className="space-y-6">
+      {/* Existing fields... */}
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
-                      <select
-                        name="experienceLevel"
-                        value={formData.mentorDetails.experienceLevel}
-                        onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                      >
-                        <option value="">Select experience level</option>
-                        <option value="junior">Junior (1-3 years)</option>
-                        <option value="mid">Mid-Level (4-6 years)</option>
-                        <option value="senior">Senior (7-10 years)</option>
-                        <option value="expert">Expert (10+ years)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Weekly Time Commitment</label>
-                      <select
-                        name="weeklyCommitment"
-                        value={formData.mentorDetails.weeklyCommitment}
-                        onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                      >
-                        <option value="">Select availability</option>
-                        <option value="1-2">1-2 hours/week</option>
-                        <option value="3-5">3-5 hours/week</option>
-                        <option value="5-10">5-10 hours/week</option>
-                        <option value="10+">10+ hours/week</option>
-                      </select>
-                    </div>
-                  </div>
+      {/* About Me Section */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">About Me</label>
+        <textarea
+          name="aboutMe"
+          placeholder="Tell us about your expertise and mentoring style..."
+          value={formData.mentorDetails.aboutMe}
+          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={4}
+        />
+      </div>
 
-                  <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">Professional Links</label>
-                    <div className="space-y-3">
-                      <div className="relative">
-                        <FaLinkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="url"
-                          name="linkedinUrl"
-                          placeholder="LinkedIn Profile URL"
-                          value={formData.mentorDetails.linkedinUrl}
-                          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                          className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="relative">
-                        <FaGithub className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="url"
-                          name="githubUrl"
-                          placeholder="GitHub Profile URL"
-                          value={formData.mentorDetails.githubUrl}
-                          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                          className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="relative">
-                        <FaUpload className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="url"
-                          name="personalWebsite"
-                          placeholder="Personal Website URL"
-                          value={formData.mentorDetails.personalWebsite}
-                          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
-                          className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+      {/* Education */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Education</label>
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="degree"
+            placeholder="Degree (e.g., M.Sc. Computer Science)"
+            value={formData.mentorDetails.education.degree}
+            onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            name="university"
+            placeholder="University"
+            value={formData.mentorDetails.education.university}
+            onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Technical Skills */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Technical Skills</label>
+        <input
+          type="text"
+          name="technicalSkills"
+          placeholder="Enter skills (e.g., React, Node.js, AWS, TypeScript)"
+          value={formData.mentorDetails.technicalSkills}
+          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <p className="text-sm text-gray-500 mt-1">Separate skills with commas</p>
+      </div>
+
+
+      {/* Mentorship Details */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate ($)</label>
+          <input
+            type="number"
+            name="hourlyRate"
+            placeholder="Enter your hourly rate"
+            value={formData.mentorDetails.hourlyRate}
+            onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Available Slots per Week</label>
+          <input
+            type="number"
+            name="availableSlots"
+            placeholder="Number of slots"
+            value={formData.mentorDetails.availableSlots}
+            onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Response Time */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Response Time</label>
+        <select
+          name="responseTime"
+          value={formData.mentorDetails.responseTime}
+          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        >
+          <option value="">Select response time</option>
+          <option value="within12">Within 12 hours</option>
+          <option value="within24">Within 24 hours</option>
+          <option value="within48">Within 48 hours</option>
+        </select>
+      </div>
+
+      {/* Social Links */}
+      <div className="space-y-4">
+        {/* Existing LinkedIn and GitHub fields... */}
+        <div className="relative">
+        <FaLinkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <input
+          type="url"
+          name="linkedinUrl"
+          placeholder="LinkedIn Profile URL"
+          value={formData.mentorDetails.linkedinUrl}
+          onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
+          className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      </div>
+    </div>
+  </>
+)}
 
             {/* Terms and Conditions */}
             <div className="flex items-center space-x-2">
