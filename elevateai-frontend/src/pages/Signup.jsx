@@ -20,7 +20,7 @@ const Signup = () => {
     confirmPassword: '',
     phoneNumber: '',
     location: '',
-    role: 'Student',
+    role: selectedRole,
     profileImage: null,
     studentDetails: {
       areaOfInterest: '',
@@ -105,6 +105,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
+
     console.log('handle submit')
     e.preventDefault();
     // if (!validateForm()) return;
@@ -133,12 +134,22 @@ const Signup = () => {
       });
 
       const data = await response.json();
+      console.log(data)
 
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
 
-      navigate('/student/dashboard', { state: { message: 'Registration successful! Please log in.' } });
+      if(formData.role === 'Student'){
+        navigate('/student/dashboard', { state: { message: 'Registration successful! Please log in.' } });
+      }
+      else if(formData.role === 'Recruiter'){
+        navigate('/recruiter/dashboard', { state: { message: 'Registration successful! Please log in.' } });
+      }
+      else if(formData.role === 'Mentor'){
+        navigate('/mentor/dashboard', { state: { message: 'Registration successful! Please log in.' } });
+      }
+     
     } catch (error) {
       setError(error.message);
     } finally {
@@ -176,7 +187,10 @@ const Signup = () => {
                   ? 'bg-white shadow-sm'
                   : 'hover:bg-gray-50'
               }`}
-              onClick={() => setSelectedRole('Student')}
+              onClick={() => {
+                setSelectedRole('Student');
+                setFormData(prev => ({ ...prev, role: 'Student' }));
+              }}
             >
               👨‍🎓 Student
             </button>
@@ -187,7 +201,10 @@ const Signup = () => {
                   ? 'bg-white shadow-sm'
                   : 'hover:bg-gray-50'
               }`}
-              onClick={() => setSelectedRole('Recruiter')}
+              onClick={() => {
+                setSelectedRole('Recruiter');
+                setFormData(prev => ({ ...prev, role: 'Recruiter' }));
+              }}
             >
               👥 Recruiter
             </button>
@@ -198,7 +215,10 @@ const Signup = () => {
                   ? 'bg-white shadow-sm'
                   : 'hover:bg-gray-50'
               }`}
-              onClick={() => setSelectedRole('Mentor')}
+              onClick={() => {
+                setSelectedRole('Mentor');
+                setFormData(prev => ({ ...prev, role: 'Mentor' }));
+              }}
             >
               👨‍🏫 Mentor
             </button>
