@@ -5,8 +5,8 @@ import elevateAILogo from '../assets/elevateai-logo.svg';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Signup = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
+  // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState('Student');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
@@ -19,20 +19,30 @@ const Signup = () => {
   location: '',
   role: selectedRole,
   profileImage: null,
-    studentDetails: {
-      areaOfInterest: '',
-      githubUrl: '',
-      codeforcesUrl: '',
-      leetcodeUrl: ''
-    },
-    recruiterDetails: {
-      companyName: '',
-      industry: '',
-      companySize: '',
-      companyWebsite: '',
-      jobTitle: '',
-      referralCode: ''
-    },
+  studentDetails: {
+    university: '',
+    yearOfStudy: '',
+    skills: '', // Array of skills
+    experience: [],
+    achievements: [], // Array of achievements
+    githubUrl: '',
+    codeforcesUrl: '',
+    leetcodeUrl: '',
+    certificates: '', // Add this field
+    achievements: '', 
+  },
+  recruiterDetails: {
+    jobTitle: '',
+    companyName: '',
+    yearsOfExperience: '',
+    professionalSummary: '',
+    industryFocus: [],
+    workModel: [],
+    linkedinUrl: '',
+    githubUrl: '',
+    twitterUrl: '',
+    companyWebsite: '',
+  },
     mentorDetails: {
       jobTitle: '',
       organization: '',
@@ -61,7 +71,23 @@ const Signup = () => {
 
   const handleRoleSpecificChange = (e, type) => {
     const { name, value } = e.target;
-    if (name.includes('.')) {
+    if (name.includes('experience.')) {
+      // Handle experience array updates
+      const [, index, field] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        studentDetails: {
+          ...prev.studentDetails,
+          experience: prev.studentDetails.experience.map((exp, i) => {
+            if (i === parseInt(index)) {
+              return { ...exp, [field]: value };
+            }
+            return exp;
+          })
+        }
+      }));
+    } else if (name.includes('.')) {
+      // Handle other nested objects
       const [parent, child] = name.split('.');
       setFormData(prev => ({
         ...prev,
@@ -74,6 +100,7 @@ const Signup = () => {
         }
       }));
     } else {
+      // Handle regular fields
       setFormData(prev => ({
         ...prev,
         [`${type}Details`]: {
@@ -99,7 +126,7 @@ const Signup = () => {
   };
 
   const validateForm = () => {
-    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.fullName || !formData.email) {
       setError('Please fill in all required fields');
       return false;
     }
@@ -107,20 +134,27 @@ const Signup = () => {
       setError('Please enter a valid email address');
       return false;
     }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return false;
-    }
+  
     if (!acceptedTerms) {
       setError('Please accept the terms and conditions');
       return false;
     }
     return true;
   };
+
+  // Add this function inside your component
+const handleAddExperience = () => {
+  setFormData(prev => ({
+    ...prev,
+    studentDetails: {
+      ...prev.studentDetails,
+      experience: [
+        ...prev.studentDetails.experience,
+        { title: '', company: '', duration: '', description: '' }
+      ]
+    }
+  }));
+};
 
   const handleSubmit = async (e) => {
 
@@ -324,7 +358,7 @@ const Signup = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <div className="relative">
@@ -365,149 +399,297 @@ const Signup = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Role-Specific Fields */}
             {selectedRole === 'Student' && (
               <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Area of Interest</label>
-                  <select
-                    name="areaOfInterest"
-                    value={formData.studentDetails.areaOfInterest}
-                    onChange={(e) => handleRoleSpecificChange(e, 'student')}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    <option value="">Select your area of interest</option>
-                    <option value="web">Web Development</option>
-                    <option value="mobile">Mobile Development</option>
-                    <option value="ai">AI/ML</option>
-                    <option value="data">Data Science</option>
-                  </select>
-                </div>
-
-                <div className="space-y-4">
-                  <p className="text-sm font-medium text-gray-700">Connect with Other Platforms</p>
-                  <div className="flex space-x-4">
-                    <button
-                      type="button"
-                      className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50"
-                    >
-                      <FaGithub className="text-gray-700" />
-                      <span>GitHub</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50"
-                    >
-                      <SiCodeforces className="text-gray-700" />
-                      <span>Codeforces</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50"
-                    >
-                      <SiLeetcode className="text-gray-700" />
-                      <span>LeetCode</span>
-                    </button>
+              <div className="space-y-6">
+                {/* Education Details */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">University/College</label>
+                    <input
+                      type="text"
+                      name="university"
+                      placeholder="Enter your university name"
+                      value={formData.studentDetails.university}
+                      onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Year of Study</label>
+                    <select
+                      name="yearOfStudy"
+                      value={formData.studentDetails.yearOfStudy}
+                      onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      <option value="">Select year</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">Final Year</option>
+                    </select>
+                  </div>
+                </div>
+          
+                {/* Skills */}
+                <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Skills</label>
+  <input
+    type="text"
+    name="skills"
+    placeholder="Enter skills (e.g., React, Node.js, Python, AWS)"
+    value={formData.studentDetails.skills}
+    onChange={(e) => handleRoleSpecificChange(e, 'student')}
+    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <p className="text-sm text-gray-500 mt-1">Separate skills with commas</p>
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Certificates</label>
+  <input
+    type="text"
+    name="certificates"
+    placeholder="Enter your certifications (e.g., AWS Solutions Architect, Google Cloud Engineer)"
+    value={formData.studentDetails.certificates}
+    onChange={(e) => handleRoleSpecificChange(e, 'student')}
+    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <p className="text-sm text-gray-500 mt-1">Separate certificates with commas</p>
+</div>
+
+{/* Achievements */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Achievements</label>
+  <textarea
+    name="achievements"
+    placeholder="Enter your achievements and accomplishments"
+    value={formData.studentDetails.achievements}
+    onChange={(e) => handleRoleSpecificChange(e, 'student')}
+    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    rows={3}
+  />
+  <p className="text-sm text-gray-500 mt-1">Include academic awards, hackathon wins, or other notable accomplishments</p>
+</div>
+          
+                {/* Experience */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience</label>
+                  {formData.studentDetails.experience.map((exp, index) => (
+                    <div key={index} className="space-y-4 p-4 border rounded-lg mb-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <input
+                          type="text"
+                          name={`experience.${index}.title`}
+                          placeholder="Job Title"
+                          value={exp.title}
+                          onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                          type="text"
+                          name={`experience.${index}.company`}
+                          placeholder="Company Name"
+                          value={exp.company}
+                          onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <textarea
+                        name={`experience.${index}.description`}
+                        placeholder="Description of your role and responsibilities"
+                        value={exp.description}
+                        onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows={3}
+                      />
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    onClick={() => handleAddExperience()}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                   >
-                    Skip for now
+                    + Add Experience
                   </button>
                 </div>
-              </>
+          
+                {/* Connected Platforms */}
+                <div className="space-y-4">
+                  <p className="text-sm font-medium text-gray-700">Connect Platforms</p>
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <FaGithub className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        name="githubUrl"
+                        placeholder="GitHub Username"
+                        value={formData.studentDetails.githubUrl}
+                        onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                        className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="relative">
+                      <SiLeetcode className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        name="leetcodeUrl"
+                        placeholder="LeetCode Username"
+                        value={formData.studentDetails.leetcodeUrl}
+                        onChange={(e) => handleRoleSpecificChange(e, 'student')}
+                        className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+            </>
             )}
 
             {selectedRole === 'Recruiter' && (
-              <>
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium">Company Information</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                      <input
-                        type="text"
-                        name="companyName"
-                        placeholder="Enter company name"
-                        value={formData.recruiterDetails.companyName}
-                        onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
-                      <select
-                        name="industry"
-                        value={formData.recruiterDetails.industry}
-                        onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                      >
-                        <option value="">Select industry</option>
-                        <option value="tech">Technology</option>
-                        <option value="finance">Finance</option>
-                        <option value="healthcare">Healthcare</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Size</label>
-                      <select
-                        name="companySize"
-                        value={formData.recruiterDetails.companySize}
-                        onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                      >
-                        <option value="">Select company size</option>
-                        <option value="1-50">1-50 employees</option>
-                        <option value="51-200">51-200 employees</option>
-                        <option value="201-1000">201-1000 employees</option>
-                        <option value="1000+">1000+ employees</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Website</label>
-                      <input
-                        type="url"
-                        name="companyWebsite"
-                        placeholder="https://company.com"
-                        value={formData.recruiterDetails.companyWebsite}
-                        onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                    <input
-                      type="text"
-                      name="jobTitle"
-                      placeholder="Your job title"
-                      value={formData.recruiterDetails.jobTitle}
-                      onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Referral Code (Optional)</label>
-                    <input
-                      type="text"
-                      name="referralCode"
-                      placeholder="Enter referral code"
-                      value={formData.recruiterDetails.referralCode}
-                      onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-              </>
+               <>
+               <div className="space-y-6">
+                 <h3 className="text-lg font-medium">Professional Information</h3>
+                 
+                 {/* Job Title and Company */}
+                 <div className="grid grid-cols-2 gap-4">
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                     <input
+                       type="text"
+                       name="jobTitle"
+                       placeholder="e.g., Senior Technical Recruiter"
+                       value={formData.recruiterDetails.jobTitle}
+                       onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                     <input
+                       type="text"
+                       name="companyName"
+                       placeholder="Enter company name"
+                       value={formData.recruiterDetails.companyName}
+                       onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     />
+                   </div>
+                 </div>
+           
+                 {/* Years of Experience */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
+                   <input
+                     type="number"
+                     name="yearsOfExperience"
+                     placeholder="Enter years of experience"
+                     value={formData.recruiterDetails.yearsOfExperience}
+                     onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   />
+                 </div>
+           
+                 {/* Professional Summary */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                   <textarea
+                     name="professionalSummary"
+                     placeholder="Describe your recruiting experience and expertise..."
+                     value={formData.recruiterDetails.professionalSummary}
+                     onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     rows={4}
+                   />
+                 </div>
+           
+                 {/* Industry Focus */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Industry Focus</label>
+                   <input
+                     type="text"
+                     name="industryFocus"
+                     placeholder="e.g., Software Development, Product Management, Data Science"
+                     value={formData.recruiterDetails.industryFocus}
+                     onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   />
+                   <p className="text-sm text-gray-500 mt-1">Separate areas with commas</p>
+                 </div>
+           
+                 {/* Work Model */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Work Model Preferences</label>
+                   <input
+                     type="text"
+                     name="workModel"
+                     placeholder="e.g., Remote, Hybrid, On-site"
+                     value={formData.recruiterDetails.workModel}
+                     onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   />
+                   <p className="text-sm text-gray-500 mt-1">Separate preferences with commas</p>
+                 </div>
+           
+                 {/* Connected Accounts */}
+                 <div className="space-y-4">
+                   <p className="text-sm font-medium text-gray-700">Connected Accounts</p>
+                   <div className="space-y-3">
+                     <div className="relative">
+                       <FaLinkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                       <input
+                         type="url"
+                         name="linkedinUrl"
+                         placeholder="LinkedIn Profile URL"
+                         value={formData.recruiterDetails.linkedinUrl}
+                         onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                         className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       />
+                     </div>
+                     <div className="relative">
+                       <FaGithub className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                       <input
+                         type="text"
+                         name="githubUrl"
+                         placeholder="GitHub Username"
+                         value={formData.recruiterDetails.githubUrl}
+                         onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                         className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       />
+                     </div>
+                     <div className="relative">
+                       <FaTwitter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                       <input
+                         type="text"
+                         name="twitterUrl"
+                         placeholder="X Username"
+                         value={formData.recruiterDetails.twitterUrl}
+                         onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                         className="w-full px-3 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       />
+                     </div>
+                   </div>
+                 </div>
+           
+                 {/* Company Website */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">Company Website</label>
+                   <input
+                     type="url"
+                     name="companyWebsite"
+                     placeholder="https://company.com"
+                     value={formData.recruiterDetails.companyWebsite}
+                     onChange={(e) => handleRoleSpecificChange(e, 'recruiter')}
+                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   />
+                 </div>
+               </div>
+             </>
             )}
 
 {selectedRole === 'Mentor' && (
