@@ -1,226 +1,261 @@
-import React from 'react';
-import { FaSearch, FaRegBookmark, FaBell, FaMapMarkerAlt, FaRegClock } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { FaSearch, FaRegBookmark, FaMapMarkerAlt, FaRegClock, FaMoneyBillWave, FaLink } from 'react-icons/fa';
 import Sidebar from './Sidebar';
+import { Link } from 'react-router-dom';
 
 const Opportunities = () => {
-    const topPicks = [
-        {
-            company: 'TechCorp Solutions',
-            logo: '/api/placeholder/40/40',
-            title: 'React Developer Internship',
-            type: 'Internship',
-            location: 'Remote',
-            tags: ['internship', 'Remote']
-        },
-        {
-            company: 'Innovation Hub',
-            logo: '/api/placeholder/40/40',
-            title: 'AI/ML Hackathon 2024',
-            type: 'Hackathon',
-            location: 'San Francisco',
-            tags: ['hackathon', 'San Francisco']
-        },
-        {
-            company: 'Global Tech Inc',
-            logo: '/api/placeholder/40/40',
-            title: 'Frontend Engineer',
-            type: 'Full-time',
-            location: 'New York',
-            tags: ['full-time', 'New York']
-        }
-    ];
+  const [hackathons, setHackathons] = useState([]);
+  const [internships, setInternships] = useState([]);
+  const [visibleHackathons, setVisibleHackathons] = useState(6);
+  const [visibleInternships, setVisibleInternships] = useState(6);
+  const [filters, setFilters] = useState({
+    type: 'all',
+    location: 'all',
+    category: 'all',
+    searchQuery: ''
+  });
 
-    const opportunities = [
-        {
-            title: 'Software Engineer',
-            company: 'Tech Innovation',
-            tags: ['React', 'NodeJs', 'TypeScript'],
-            location: 'San Francisco',
-            timeAgo: '2 days ago'
-        },
-        {
-            title: 'Product Design Intern',
-            company: 'Creative Solution',
-            tags: ['Figma', 'UI/UX', 'Prototyping'],
-            location: 'Remote',
-            timeAgo: '1 day ago'
-        },
-        {
-            title: 'Data Science Hackathon',
-            company: 'AI Research Lab',
-            tags: ['Python', 'ML', 'Data Analysis'],
-            location: 'Boston',
-            timeAgo: '5 days ago'
-        },
-        {
-            title: 'Cloud Engineering Summit',
-            company: 'Cloud Tech Co',
-            tags: ['AWS', 'DevOps', 'Kubernetes'],
-            location: 'Virtual',
-            timeAgo: '5 days ago'
-        }
-    ];
+  // Animation configurations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
 
-    const events = [
-        {
-            title: 'Quasar 2024 Hackathon',
-            organizer: 'Tech Community',
-            date: 'Mar 15-17, 2024',
-            deadline: 'Registration Deadline: Mar 1, 2024',
-            image: '/api/placeholder/300/200'
-        },
-        {
-            title: 'Web3 Developer Meetup',
-            organizer: 'Blockchain Hub',
-            date: 'Mar 20, 2024',
-            deadline: 'Registration Deadline: Mar 19, 2024',
-            image: '/api/placeholder/300/200'
-        },
-        {
-            title: 'AI/ML Workshop Series',
-            organizer: 'Data Science Club',
-            date: 'Mar 25-27, 2024',
-            deadline: 'Registration Deadline: Mar 20, 2024',
-            image: '/api/placeholder/300/200'
-        }
-    ];
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { duration: 0.4 }
+    }
+  };
 
-    return (
-        <div className="flex bg-[#F8FAFC]">
-            <Sidebar />
-            <div className="mt-16 w-full min-h-screen p-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold mb-2">Unlock Your Next Opportunity</h1>
-                    <p className="text-gray-600">Discover jobs, internships, hackathons, and events tailored to your aspirations!</p>
-                </div>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [hackResponse, internResponse] = await Promise.all([
+          fetch('http://localhost:3000/api/hackathon'),
+          fetch('http://localhost:3000/api/internships')
+        ]);
+        
+        const hackData = await hackResponse.json();
+        const internData = await internResponse.json();
 
-                {/* Search Bar */}
-                <div className="mb-8">
-                    <div className="relative">
-                        <FaSearch className="absolute left-3 top-3 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search by role, location, or event type..."
-                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-                        />
-                    </div>
+        setHackathons(hackData.filter(h => 
+          h.title && h.title !== 'Applications open' && h.status_tags
+        ));
+        
+        setInternships(internData.filter(i => 
+          i.title !== 'N/A' && i.company !== 'N/A' && i.location
+        ));
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    };
 
-                    {/* Filters */}
-                    <div className="flex gap-4 mt-4">
-                        <select className="px-4 py-2 border border-gray-200 rounded-lg bg-white">
-                            <option>Opportunity Type</option>
-                        </select>
-                        <select className="px-4 py-2 border border-gray-200 rounded-lg bg-white">
-                            <option>Location</option>
-                        </select>
-                        <select className="px-4 py-2 border border-gray-200 rounded-lg bg-white">
-                            <option>Category</option>
-                        </select>
-                    </div>
-                </div>
+    fetchData();
+  }, []);
 
-                {/* Top Picks */}
-                <div className="mb-12">
-                    <h2 className="text-xl font-bold mb-4">Top Picks for You</h2>
-                    <div className="grid grid-cols-3 gap-6">
-                        {topPicks.map((pick, index) => (
-                            <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
-                                <div className="flex justify-between mb-4">
-                                    <img src={pick.logo} alt={pick.company} className="w-10 h-10 rounded" />
-                                    <FaRegBookmark className="text-gray-400" />
-                                </div>
-                                <h3 className="font-medium mb-2">{pick.title}</h3>
-                                <p className="text-gray-600 text-sm mb-4">{pick.company}</p>
-                                <div className="flex gap-2 mb-4">
-                                    {pick.tags.map((tag, idx) => (
-                                        <span key={idx} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                                <button className="w-full bg-blue-600 text-white rounded-lg py-2">
-                                    Apply Now
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+  const filteredInternships = internships.filter(intern => {
+    const matchesType = filters.type === 'all' || 
+      (filters.type === 'internship' && intern.category);
+    const matchesLocation = filters.location === 'all' || 
+      intern.location.toLowerCase() === filters.location.toLowerCase();
+    const matchesCategory = filters.category === 'all' || 
+      intern.category === filters.category;
+    const matchesSearch = intern.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+      intern.company.toLowerCase().includes(filters.searchQuery.toLowerCase());
 
-                {/* Category Tabs */}
-                <div className="flex gap-6 mb-8">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
-                        <span>Jobs</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 text-gray-600">
-                        <span>Internships</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 text-gray-600">
-                        <span>Hackathons</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 text-gray-600">
-                        <span>Technical Meetups</span>
-                    </button>
-                </div>
+    return matchesType && matchesLocation && matchesCategory && matchesSearch;
+  });
 
-                {/* Opportunities List */}
-                <div className="mb-12">
-                    {opportunities.map((opp, index) => (
-                        <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 mb-4 flex justify-between items-center">
-                            <div>
-                                <h3 className="font-medium mb-2">{opp.title}</h3>
-                                <p className="text-gray-600 text-sm mb-4">{opp.company}</p>
-                                <div className="flex gap-2">
-                                    {opp.tags.map((tag, idx) => (
-                                        <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-end">
-                                <div className="flex items-center gap-2 text-gray-600 text-sm mb-2">
-                                    <FaMapMarkerAlt />
-                                    <span>{opp.location}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-gray-600 text-sm mb-4">
-                                    <FaRegClock />
-                                    <span>{opp.timeAgo}</span>
-                                </div>
-                                <button className="bg-blue-600 text-white px-6 py-2 rounded-lg">
-                                    Apply Now
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+  const filteredHackathons = hackathons.filter(hack => {
+    const isOnline = hack.status_tags?.some(tag => tag.toLowerCase() === 'online');
+    const matchesType = filters.type === 'all' || 
+      (filters.type === 'hackathon' && hack.status_tags);
+    const matchesLocation = filters.location === 'all' || 
+      (isOnline ? 'online' : 'offline') === filters.location.toLowerCase();
+    const matchesSearch = hack.title.toLowerCase().includes(filters.searchQuery.toLowerCase());
 
-                {/* Upcoming Events */}
-                <div>
-                    <h2 className="text-xl font-bold mb-4">Upcoming Events to Supercharge Your Skills</h2>
-                    <div className="grid grid-cols-3 gap-6">
-                        {events.map((event, index) => (
-                            <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                <img src={event.image} alt={event.title} className="w-full h-48 object-cover" />
-                                <div className="p-6">
-                                    <h3 className="font-medium mb-2">{event.title}</h3>
-                                    <p className="text-gray-600 text-sm mb-2">{event.organizer}</p>
-                                    <div className="flex items-center gap-2 text-gray-600 text-sm mb-2">
-                                        <FaRegClock />
-                                        <span>{event.date}</span>
-                                    </div>
-                                    <p className="text-gray-600 text-sm mb-4">{event.deadline}</p>
-                                    <button className="w-full bg-blue-600 text-white rounded-lg py-2">
-                                        Register Now
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+    return matchesType && matchesLocation && matchesSearch;
+  });
+
+  const getHackathonDate = (statusTags) => {
+    const dateTag = statusTags?.find(tag => tag.startsWith('Starts '));
+    return dateTag ? dateTag.replace('Starts ', '') : 'Date not specified';
+  };
+
+  const categoryOptions = [
+    { value: '3d-printing', label: '3D Printing' },
+    { value: 'web-development', label: 'Web Development' },
+    { value: 'ai-ml', label: 'AI/ML' }
+  ];
+
+  return (
+    <div className="flex bg-[#F8FAFC]">
+      <Sidebar />
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="mt-16 w-full min-h-screen p-6"
+      >
+        {/* Header and Search - Same as before */}
+
+        {/* Filters */}
+        <div className="flex gap-4 mt-4">
+          <select 
+            className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+            value={filters.type}
+            onChange={(e) => setFilters({...filters, type: e.target.value})}
+          >
+            <option value="all">All Types</option>
+            <option value="internship">Internships</option>
+            <option value="hackathon">Hackathons</option>
+          </select>
+
+          <select 
+            className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+            value={filters.location}
+            onChange={(e) => setFilters({...filters, location: e.target.value})}
+          >
+            <option value="all">All Locations</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </select>
+
+          {filters.type === 'internship' && (
+            <select 
+              className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+              value={filters.category}
+              onChange={(e) => setFilters({...filters, category: e.target.value})}
+            >
+              <option value="all">All Categories</option>
+              {categoryOptions.map((cat) => (
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              ))}
+            </select>
+          )}
         </div>
-    );
+
+        {/* Internships Section */}
+        <motion.div variants={containerVariants} initial="hidden" animate="visible">
+          <h2 className="text-xl font-bold my-6">Internship Opportunities</h2>
+          <div className="grid grid-cols-1 gap-4">
+            {filteredInternships.slice(0, visibleInternships).map((intern) => (
+              <motion.div
+                key={intern._id}
+                variants={itemVariants}
+                className="bg-white p-6 rounded-lg border border-gray-200 flex justify-between items-center"
+              >
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-2">{intern.title}</h3>
+                  <div className="flex items-center gap-4 mb-4">
+                    <span className="flex items-center text-sm text-gray-600">
+                      <FaMapMarkerAlt className="mr-1" />
+                      {intern.location}
+                    </span>
+                    <span className="flex items-center text-sm text-gray-600">
+                      <FaRegClock className="mr-1" />
+                      {intern.posted_time}
+                    </span>
+                    {intern.stipend !== 'N/A' && (
+                      <span className="flex items-center text-sm text-green-600">
+                        <FaMoneyBillWave className="mr-1" />
+                        {intern.stipend}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {intern.category?.replace('-', ' ') || 'General'}
+                    </span>
+                  </div>
+                </div>
+                <a
+                  href={intern.link}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 ml-4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Apply
+                </a>
+              </motion.div>
+            ))}
+          </div>
+          {visibleInternships < filteredInternships.length && (
+            <button
+              onClick={() => setVisibleInternships(prev => prev + 6)}
+              className="w-full mt-4 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200"
+            >
+              Show More Internships
+            </button>
+          )}
+        </motion.div>
+
+        {/* Hackathons Section */}
+        <motion.div variants={containerVariants} initial="hidden" animate="visible">
+          <h2 className="text-xl font-bold my-6">Upcoming Hackathons</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredHackathons.slice(0, visibleHackathons).map((hack) => (
+              <motion.div
+                key={hack._id}
+                variants={itemVariants}
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+              >
+                <div className="relative h-48 bg-gray-200">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                    <h3 className="text-white font-semibold text-lg">{hack.title}</h3>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {hack.status_tags?.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                    <FaRegClock />
+                    <span>Starts: {getHackathonDate(hack.status_tags)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                    <FaLink />
+                    <Link to={hack.social_links.twitter} target="_blank" rel="noopener noreferrer">
+                    <span>: {hack.social_links.twitter}</span>
+                    </Link>
+                  </div>
+                  <a
+                    href={hack.link}
+                    className="w-full block text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Register Now
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          {visibleHackathons < filteredHackathons.length && (
+            <button
+              onClick={() => setVisibleHackathons(prev => prev + 6)}
+              className="w-full mt-4 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200"
+            >
+              Show More Hackathons
+            </button>
+          )}
+        </motion.div>
+      </motion.div>
+    </div>
+  );
 };
 
 export default Opportunities;
