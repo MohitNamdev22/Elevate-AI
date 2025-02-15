@@ -135,16 +135,18 @@ const RecommendedJobs = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isSubscribed = true;
+
     const fetchJobs = async () => {
       try {
         const userId = localStorage.getItem('userId');
         if (!userId) {
           throw new Error('User ID not found');
         }
-  
+
         // Add setTimeout to delay the fetch
         await new Promise(resolve => setTimeout(resolve, 3000));
-  
+
         const response = await fetch('http://localhost:3000/api/users/top-categories-and-jobs', {
           method: 'POST',
           headers: {
@@ -154,26 +156,40 @@ const RecommendedJobs = () => {
             studentId: userId
           })
         });
-  
+
         const data = await response.json();
-        console.log(data);
-  
+
         if (!response.ok) {
           throw new Error(data.message || 'Failed to fetch jobs');
         }
-  
-        setJobs(data.topJobs);
-        setCategories(data.topCategories);
+
+        // Only update state if component is still mounted
+        if (isSubscribed) {
+          setJobs(data.topJobs);
+          setCategories(data.topCategories);
+          setError(null);
+        }
       } catch (err) {
-        setError(err.message);
-        console.error('Error fetching jobs:', err);
+        // Only update error state if component is still mounted
+        if (isSubscribed) {
+          setError(err.message);
+          console.error('Error fetching jobs:', err);
+        }
       } finally {
-        setLoading(false);
+        // Only update loading state if component is still mounted
+        if (isSubscribed) {
+          setLoading(false);
+        }
       }
     };
-  
+
     fetchJobs();
-  }, []);
+
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isSubscribed = false;
+    };
+  }, []); // Empty dependency array
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mt-6">
