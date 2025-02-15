@@ -153,7 +153,8 @@ const getRandomHackathonImage = () => {
 
         {/* Internship Filters */}
 <div className="mb-8">
-  <h3 className="text-lg font-semibold mb-4">Internship Filters</h3>
+<h2 className="text-xl font-bold my-6">Internship Opportunities</h2>
+
   <div className="flex gap-4">
     <select 
       className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
@@ -186,33 +187,10 @@ const getRandomHackathonImage = () => {
   </div>
 </div>
 
-{/* Hackathon Filters */}
-<div className="mb-8">
-  <h3 className="text-lg font-semibold mb-4">Hackathon Filters</h3>
-  <div className="flex gap-4">
-    <select 
-      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
-      value={hackathonFilters.location}
-      onChange={(e) => setHackathonFilters({...hackathonFilters, location: e.target.value})}
-    >
-      <option value="all">All Locations</option>
-      <option value="online">Online</option>
-      <option value="offline">Offline</option>
-    </select>
 
-    <input
-      type="text"
-      placeholder="Search hackathons..."
-      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
-      value={hackathonFilters.searchQuery}
-      onChange={(e) => setHackathonFilters({...hackathonFilters, searchQuery: e.target.value})}
-    />
-  </div>
-</div>
 
         {/* Internships Section */}
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <h2 className="text-xl font-bold my-6">Internship Opportunities</h2>
           <div className="grid grid-cols-1 gap-4">
             {filteredInternships.slice(0, visibleInternships).map((intern) => (
               <motion.div
@@ -265,9 +243,32 @@ const getRandomHackathonImage = () => {
           )}
         </motion.div>
 
+        {/* Hackathon Filters */}
+<div className="mb-8">
+<h2 className="text-xl font-bold my-6">Upcoming Hackathons</h2>
+  <div className="flex gap-4">
+    <select 
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={hackathonFilters.location}
+      onChange={(e) => setHackathonFilters({...hackathonFilters, location: e.target.value})}
+    >
+      <option value="all">All Locations</option>
+      <option value="online">Online</option>
+      <option value="offline">Offline</option>
+    </select>
+
+    <input
+      type="text"
+      placeholder="Search hackathons..."
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={hackathonFilters.searchQuery}
+      onChange={(e) => setHackathonFilters({...hackathonFilters, searchQuery: e.target.value})}
+    />
+  </div>
+</div>
+
         {/* Hackathons Section */}
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <h2 className="text-xl font-bold my-6">Upcoming Hackathons</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredHackathons.slice(0, visibleHackathons).map((hack) => (
               <motion.div
