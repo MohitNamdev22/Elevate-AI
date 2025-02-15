@@ -5,7 +5,6 @@ const { default: mongoose } = require("mongoose");
 const userSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
     role: { 
       type: String, 
       required: true, 
@@ -19,28 +18,51 @@ const userSchema = new mongoose.Schema({
 
     
     studentDetails: {
-      areaOfInterest: String,
+      skills: [String],
+      collegeName: String,
+      yearOfStudy: String,
+      certificates: [String],
+      achievements: String,
+      experience: [
+        {
+          company: String,
+          title: String,
+          description: String,
+          duration: String
+        }
+      ],
       socialProfiles: {
         github: String,
-        codeforces: String,
         leetcode: String
       }
     },
     
     recruiterDetails: {
       companyName: String,
-      industry: String,
-      companySize: String,
       companyWebsite: String,
+      industryFocus: [String],
       jobTitle: String,
-      referralCode: String
+      linkedinUrl: String,
+      twitterUrl: String,
+      professionalSummary: String,
+      workModel: String,
+      yearsOfExperience: String,
+      githubUrl: String
     },
     
     mentorDetails: {
-      jobTitle: String,
-      organization: String,
+      aboutMe: String,
+      availableSlots: String,
+      degree: String,
       experienceLevel: String,
-      weeklyTimeCommitment: String,
+      hourlyRate: String,
+      jobTitle: String,
+      linkedinUrl: String,
+      organization: String,
+      responseTime: String,
+      technicalSkills: [String],
+      university: String,
+      year: String,
       professionalLinks: {
         linkedin: String,
         github: String,
