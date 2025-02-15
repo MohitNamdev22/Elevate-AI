@@ -9,12 +9,16 @@ const Opportunities = () => {
   const [internships, setInternships] = useState([]);
   const [visibleHackathons, setVisibleHackathons] = useState(6);
   const [visibleInternships, setVisibleInternships] = useState(6);
-  const [filters, setFilters] = useState({
-    type: 'all',
+  const [internshipFilters, setInternshipFilters] = useState({
     location: 'all',
     category: 'all',
     searchQuery: ''
   });
+  
+  const [hackathonFilters, setHackathonFilters] = useState({
+    location: 'all',
+    searchQuery: ''
+  })
 
   // Animation configurations
   const containerVariants = {
@@ -46,8 +50,11 @@ const Opportunities = () => {
         const internData = await internResponse.json();
 
         setHackathons(hackData.filter(h => 
-          h.title && h.title !== 'Applications open' && h.status_tags
-        ));
+            h.title && h.title !== 'Applications open' && h.status_tags
+          ).map(h => ({
+            ...h,
+            image: getRandomHackathonImage()
+          })));
         
         setInternships(internData.filter(i => 
           i.title !== 'N/A' && i.company !== 'N/A' && i.location
@@ -60,29 +67,32 @@ const Opportunities = () => {
     fetchData();
   }, []);
 
-  const filteredInternships = internships.filter(intern => {
-    const matchesType = filters.type === 'all' || 
-      (filters.type === 'internship' && intern.category);
-    const matchesLocation = filters.location === 'all' || 
-      intern.location.toLowerCase() === filters.location.toLowerCase();
-    const matchesCategory = filters.category === 'all' || 
-      intern.category === filters.category;
-    const matchesSearch = intern.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-      intern.company.toLowerCase().includes(filters.searchQuery.toLowerCase());
-
-    return matchesType && matchesLocation && matchesCategory && matchesSearch;
+  // Update the filteredInternships const
+const filteredInternships = internships.filter(intern => {
+    const matchesLocation = internshipFilters.location === 'all' || 
+      intern.location.toLowerCase() === internshipFilters.location.toLowerCase();
+    const matchesCategory = internshipFilters.category === 'all' || 
+      intern.category === internshipFilters.category;
+    const matchesSearch = intern.title.toLowerCase().includes(internshipFilters.searchQuery.toLowerCase()) ||
+      intern.company.toLowerCase().includes(internshipFilters.searchQuery.toLowerCase());
+  
+    return matchesLocation && matchesCategory && matchesSearch;
   });
-
+  
+  // Update the filteredHackathons const
   const filteredHackathons = hackathons.filter(hack => {
     const isOnline = hack.status_tags?.some(tag => tag.toLowerCase() === 'online');
-    const matchesType = filters.type === 'all' || 
-      (filters.type === 'hackathon' && hack.status_tags);
-    const matchesLocation = filters.location === 'all' || 
-      (isOnline ? 'online' : 'offline') === filters.location.toLowerCase();
-    const matchesSearch = hack.title.toLowerCase().includes(filters.searchQuery.toLowerCase());
-
-    return matchesType && matchesLocation && matchesSearch;
+    const matchesLocation = hackathonFilters.location === 'all' || 
+      (isOnline ? 'online' : 'offline') === hackathonFilters.location.toLowerCase();
+    const matchesSearch = hack.title.toLowerCase().includes(hackathonFilters.searchQuery.toLowerCase());
+  
+    return matchesLocation && matchesSearch;
   });
+
+const getRandomHackathonImage = () => {
+    const randomNum = Math.floor(Math.random() * 10) + 1;
+    return `/hackathon/pic${randomNum}.jpg`;
+  };
 
   const getHackathonDate = (statusTags) => {
     const dateTag = statusTags?.find(tag => tag.startsWith('Starts '));
@@ -106,7 +116,7 @@ const Opportunities = () => {
         {/* Header and Search - Same as before */}
 
         {/* Filters */}
-        <div className="flex gap-4 mt-4">
+        {/* <div className="flex gap-4 mt-4">
           <select 
             className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
             value={filters.type}
@@ -139,7 +149,66 @@ const Opportunities = () => {
               ))}
             </select>
           )}
-        </div>
+        </div> */}
+
+        {/* Internship Filters */}
+<div className="mb-8">
+  <h3 className="text-lg font-semibold mb-4">Internship Filters</h3>
+  <div className="flex gap-4">
+    <select 
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={internshipFilters.location}
+      onChange={(e) => setInternshipFilters({...internshipFilters, location: e.target.value})}
+    >
+      <option value="all">All Locations</option>
+      <option value="online">Online</option>
+      <option value="offline">Offline</option>
+    </select>
+
+    <select 
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={internshipFilters.category}
+      onChange={(e) => setInternshipFilters({...internshipFilters, category: e.target.value})}
+    >
+      <option value="all">All Categories</option>
+      {categoryOptions.map((cat) => (
+        <option key={cat.value} value={cat.value}>{cat.label}</option>
+      ))}
+    </select>
+
+    <input
+      type="text"
+      placeholder="Search internships..."
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={internshipFilters.searchQuery}
+      onChange={(e) => setInternshipFilters({...internshipFilters, searchQuery: e.target.value})}
+    />
+  </div>
+</div>
+
+{/* Hackathon Filters */}
+<div className="mb-8">
+  <h3 className="text-lg font-semibold mb-4">Hackathon Filters</h3>
+  <div className="flex gap-4">
+    <select 
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={hackathonFilters.location}
+      onChange={(e) => setHackathonFilters({...hackathonFilters, location: e.target.value})}
+    >
+      <option value="all">All Locations</option>
+      <option value="online">Online</option>
+      <option value="offline">Offline</option>
+    </select>
+
+    <input
+      type="text"
+      placeholder="Search hackathons..."
+      className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+      value={hackathonFilters.searchQuery}
+      onChange={(e) => setHackathonFilters({...hackathonFilters, searchQuery: e.target.value})}
+    />
+  </div>
+</div>
 
         {/* Internships Section */}
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
@@ -207,10 +276,15 @@ const Opportunities = () => {
                 className="bg-white rounded-lg border border-gray-200 overflow-hidden"
               >
                 <div className="relative h-48 bg-gray-200">
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <h3 className="text-white font-semibold text-lg">{hack.title}</h3>
-                  </div>
-                </div>
+  <img 
+    src={hack.image} 
+    alt={hack.title}
+    className="w-full h-full object-cover"
+  />
+  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+    <h3 className="text-white font-semibold text-lg">{hack.title}</h3>
+  </div>
+</div>
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2 mb-4">
                     {hack.status_tags?.map((tag, index) => (
