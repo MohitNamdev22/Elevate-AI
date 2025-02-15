@@ -1,0 +1,60 @@
+/* Editor Styles */
+.editor-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .editor-content {
+    min-height: calc(100vh - 200px);
+    padding: 1rem;
+  }
+  
+  .menu-bar {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .menu-bar button {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+  }
+  
+  .menu-bar button.is-active {
+    background: #e2e8f0;
+  }
+  
+  /* Resume Preview Styles */
+  .resume-preview h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #1e293b;
+  }
+  
+  .resume-preview h3 {
+    font-size: 1.25rem;
+    font-weight: semibold;
+    margin: 0.5rem 0;
+  }
+  
+  .resume-preview table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+  }
+  
+  .resume-preview td,
+  .resume-preview th {
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  
+  .resume-preview ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+  }

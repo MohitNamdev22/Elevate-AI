@@ -1,10 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
 import ResumeAnalyzer from './ResumeAnalyzer';
+import ResumeGenerator from './ResumeGenerator';
+
 
 
 const Resume = () => {
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
   const templates = [
     {
       name: 'Professional',
@@ -50,114 +54,141 @@ const Resume = () => {
   );
 
   return (
-    <div className="flex bg-[#F8FAFC]">
-            <Sidebar />
-    <div className="mt-16 w-full min-h-screen p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Craft Your Perfect Resume</h1>
-        <p className="text-gray-600">
-          Leverage AI or customize manually. Choose from ATS-friendly templates and stand out!
-        </p>
-      </div>
+  //   <div className="flex bg-[#F8FAFC]">
+  //           <Sidebar />
+  //   <div className="mt-16 w-full min-h-screen p-6">
+  //     <ResumeGenerator />
+    
+  //      <div className="mb-8">
+  //       <h1 className="text-3xl font-bold mb-2">Craft Your Perfect Resume</h1>
+  //       <p className="text-gray-600">
+  //         Leverage AI or customize manually. Choose from ATS-friendly templates and stand out!
+  //       </p>
+  //     </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-4 mb-8">
-        <button className="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center gap-2">
-          🤖 Generate Resume Using AI
-        </button>
-        <Link to="/student/resume-generator/manual-resume">
-    <button className="border border-gray-300 px-6 py-3 rounded-lg flex items-center gap-2">
-      ✍️ Build Manually
-    </button>
-  </Link>
-      </div>
+    
+  //     <div className="flex gap-4 mb-8">
+  //       <button className="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+  //         🤖 Generate Resume Using AI
+  //       </button>
+  //       <Link to="/student/resume-generator/manual-resume">
+  //   <button className="border border-gray-300 px-6 py-3 rounded-lg flex items-center gap-2">
+  //     ✍️ Build Manually
+  //   </button>
+  // </Link>
+  //     </div>
 
-      {/* Quick Preview Section */}
-      <div className="mb-12">
-        <h2 className="text-xl font-bold mb-4">Quick Preview</h2>
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="flex gap-8">
-            <div className="flex-1 border p-4 rounded-md">
-              <img
-                src="/api/placeholder/400/300"
-                alt="Resume Preview"
-                className="rounded-lg w-full object-cover"
-              />
-              <div className="mt-4 flex gap-4">
-                <button className="flex items-center gap-2 text-gray-600">
-                  <DownloadIcon /> Download
-                </button>
-                <button className="flex items-center gap-2 text-gray-600">
-                  <ShareIcon /> Share
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 border p-4 rounded-md">
-              <h3 className="font-bold mb-4">Profile Data</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    🎓
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Education</p>
-                    <p className="font-medium">{profileData.education}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    💼
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Experience</p>
-                    <p className="font-medium">{profileData.experience}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    ⭐
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Skills</p>
-                    <p className="font-medium">{profileData.skills}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    
+  //     <div className="mb-12">
+  //       <h2 className="text-xl font-bold mb-4">Quick Preview</h2>
+  //       <div className="bg-white rounded-lg p-6 shadow-sm">
+  //         <div className="flex gap-8">
+  //           <div className="flex-1 border p-4 rounded-md">
+  //             <img
+  //               src="/api/placeholder/400/300"
+  //               alt="Resume Preview"
+  //               className="rounded-lg w-full object-cover"
+  //             />
+  //             <div className="mt-4 flex gap-4">
+  //               <button className="flex items-center gap-2 text-gray-600">
+  //                 <DownloadIcon /> Download
+  //               </button>
+  //               <button className="flex items-center gap-2 text-gray-600">
+  //                 <ShareIcon /> Share
+  //               </button>
+  //             </div>
+  //           </div>
+  //           <div className="flex-1 border p-4 rounded-md">
+  //             <h3 className="font-bold mb-4">Profile Data</h3>
+  //             <div className="space-y-4">
+  //               <div className="flex items-center gap-4">
+  //                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+  //                   🎓
+  //                 </div>
+  //                 <div>
+  //                   <p className="text-sm text-gray-600">Education</p>
+  //                   <p className="font-medium">{profileData.education}</p>
+  //                 </div>
+  //               </div>
+  //               <div className="flex items-center gap-4">
+  //                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+  //                   💼
+  //                 </div>
+  //                 <div>
+  //                   <p className="text-sm text-gray-600">Experience</p>
+  //                   <p className="font-medium">{profileData.experience}</p>
+  //                 </div>
+  //               </div>
+  //               <div className="flex items-center gap-4">
+  //                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+  //                   ⭐
+  //                 </div>
+  //                 <div>
+  //                   <p className="text-sm text-gray-600">Skills</p>
+  //                   <p className="font-medium">{profileData.skills}</p>
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+
+     
+  //     <div>
+  //       <h2 className="text-xl font-bold mb-4">ATS-Friendly Templates</h2>
+  //       <div className="grid grid-cols-3 gap-6">
+  //         {templates.map((template, index) => (
+  //           <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm">
+  //             <img
+  //               src={template.image}
+  //               alt={template.name}
+  //               className="w-full h-48 object-cover"
+  //             />
+  //             <div className="p-4">
+  //               <div className="flex justify-between items-start mb-2">
+  //                 <h3 className="font-bold">{template.name}</h3>
+  //                 <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
+  //                   {template.status}
+  //                 </span>
+  //               </div>
+  //               <p className="text-gray-600 text-sm mb-4">{template.description}</p>
+  //               <button className="w-full bg-blue-600 text-white py-2 rounded-lg">
+  //                 Use Template
+  //               </button>
+  //             </div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     </div> 
+  //   </div>
+  //   </div>
+
+  <div className="relative min-h-screen bg-[#F8FAFC]">
+      {/* Sidebar Trigger */}
+      <div
+        className="fixed top-0 left-0 h-full w-2 bg-transparent z-40 hover:w-64 transition-all duration-300"
+        onMouseEnter={() => setIsSidebarVisible(true)}
+        onMouseLeave={() => setIsSidebarVisible(false)}
+      >
+        {/* Sidebar Component */}
+        <div className={`fixed top-0 left-0 h-full transition-transform duration-300 ease-in-out transform ${
+          isSidebarVisible ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <Sidebar />
         </div>
       </div>
 
-      {/* Templates Section */}
-      <div>
-        <h2 className="text-xl font-bold mb-4">ATS-Friendly Templates</h2>
-        <div className="grid grid-cols-3 gap-6">
-          {templates.map((template, index) => (
-            <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm">
-              <img
-                src={template.image}
-                alt={template.name}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold">{template.name}</h3>
-                  <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
-                    {template.status}
-                  </span>
-                </div>
-                <p className="text-gray-600 text-sm mb-4">{template.description}</p>
-                <button className="w-full bg-blue-600 text-white py-2 rounded-lg">
-                  Use Template
-                </button>
-              </div>
-            </div>
-          ))}
+      {/* Main Content */}
+      <div className="w-full min-h-screen">
+        <div className="mt-16 p-6">
+          <ResumeGenerator />
         </div>
       </div>
     </div>
-    </div>
+
+
+
   );
 };
 

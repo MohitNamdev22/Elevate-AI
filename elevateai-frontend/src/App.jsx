@@ -21,6 +21,7 @@ import RecruiterProfile from './pages/recruiter/Profile'
 import MentorDashboard from './pages/mentor/Dashboard'
 import ManageSessions from './pages/mentor/ManageSessions'
 import MentorProfile from './pages/mentor/Profile'
+import ResumeBuilder from './pages/student/ResumeGenerator'
 
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />
         <Route path="/mentor/manage-sessions" element={<ManageSessions />} />
         <Route path="/mentor/profile" element={<MentorProfile />} />
+        <Route path="/student/resumegenerator" element={<ResumeBuilder />} />
 
       </Routes>
     </Router>
