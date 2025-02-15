@@ -2,14 +2,15 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const GitHubAPI = require('../utils/githubApi');
 const leetCodeApi = require('../utils/leetCodeApi');
+const { getTopCategoriesAndJobs } = require('../utils/recommendation');
 
 class UserController {
+ 
   async addUser(req, res) {
     try {
       const { 
         fullName, 
-        email, 
-        password, 
+        email,  
         role,
         phoneNumber,
         location,
@@ -19,7 +20,7 @@ class UserController {
         mentorDetails
       } = req.body;
 
-      console.log(role, recruiterDetails);
+      console.log(req.body);
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });
@@ -27,22 +28,64 @@ class UserController {
         return res.status(400).json({ message: 'User already exists' });
       }
 
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
 
       // Create new user
       const newUser = new User({
         fullName,
         email,
-        password: hashedPassword,
         role,
         phoneNumber,
         location,
         profileImage,
-        studentDetails: role === 'Student' ? studentDetails : undefined,
-        recruiterDetails: role === 'Recruiter' ? recruiterDetails : undefined,
-        mentorDetails: role === 'Mentor' ? mentorDetails : undefined
+        studentDetails: role === 'Student' ? {
+          skills: studentDetails.skills.split(','),
+          collegeName: studentDetails.university,
+          yearOfStudy: studentDetails.yearOfStudy,
+          certificates: studentDetails.certificates.split(','),
+          achievements: studentDetails.achievements,
+          experience: studentDetails.experience.map(exp => ({
+            company: exp.company,
+            title: exp.title,
+            description: exp.description,
+            duration: exp.duration
+          })),
+          socialProfiles: {
+            github: studentDetails.githubUrl,
+            leetcode: studentDetails.leetcodeUrl,
+            codeforces: studentDetails.codeforcesUrl
+          }
+        } : undefined,
+        recruiterDetails: role === 'Recruiter' ? {
+          companyName: recruiterDetails.companyName,
+          companyWebsite: recruiterDetails.companyWebsite,
+          industryFocus: recruiterDetails.industryFocus.split(','),
+          jobTitle: recruiterDetails.jobTitle,
+          linkedinUrl: recruiterDetails.linkedinUrl,
+          twitterUrl: recruiterDetails.twitterUrl,
+          professionalSummary: recruiterDetails.professionalSummary,
+          workModel: recruiterDetails.workModel,
+          yearsOfExperience: recruiterDetails.yearsOfExperience,
+          githubUrl: recruiterDetails.githubUrl
+        } : undefined,
+        mentorDetails: role === 'Mentor' ? {
+          aboutMe: mentorDetails.aboutMe,
+          availableSlots: mentorDetails.availableSlots,
+          degree: mentorDetails.degree,
+          experienceLevel: mentorDetails.experienceLevel,
+          hourlyRate: mentorDetails.hourlyRate,
+          jobTitle: mentorDetails.jobTitle,
+          linkedinUrl: mentorDetails.linkedinUrl,
+          organization: mentorDetails.organization,
+          responseTime: mentorDetails.responseTime,
+          technicalSkills: mentorDetails.technicalSkills.split(','),
+          university: mentorDetails.university,
+          year: mentorDetails.year,
+          professionalLinks: {
+            linkedin: mentorDetails.linkedinUrl,
+            github: mentorDetails.githubUrl,
+            personalWebsite: mentorDetails.personalWebsite
+          }
+        } : undefined
       });
 
       // Save user
@@ -173,6 +216,51 @@ class UserController {
     } catch (error) {
       console.error('Error fetching LeetCode stats:', error);
       res.status(500).json({ message: 'Server error fetching LeetCode stats' });
+    }
+  }
+
+  async getTopCategories(req, res) {
+    try {
+      const { studentId, categories } = req.body;
+
+      // Fetch student details using student ID
+      const student = await User.findById(studentId).select('studentDetails');
+      if (!student || !student.studentDetails) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+
+      const studentProfile = student.studentDetails;
+
+      // Get top categories based on the student's profile
+      const topCategories = await getTopCategories(studentProfile, categories);
+
+      res.status(200).json({ topCategories });
+    } catch (error) {
+      console.error('Error fetching top categories:', error);
+      res.status(500).json({ message: 'Server error fetching top categories' });
+    }
+  }
+
+  async getTopCategoriesAndJobs(req, res) {
+    try {
+      const { studentId } = req.body;
+      let categories = ["3d-printing", "net-development","web-development","backend-development","graphic-design","machine-learning"]
+      console.log(categories)
+      // Fetch student details using student ID
+      const student = await User.findById(studentId).select('studentDetails');
+      if (!student || !student.studentDetails) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+
+      const studentProfile = student.studentDetails;
+
+      // Get top categories and jobs based on the student's profile
+      const { topCategories, topJobs } = await getTopCategoriesAndJobs(studentProfile, categories);
+
+      res.status(200).json({ topCategories, topJobs });
+    } catch (error) {
+      console.error('Error fetching top categories and jobs:', error);
+      res.status(500).json({ message: 'Server error fetching top categories and jobs' });
     }
   }
 }

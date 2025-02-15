@@ -43,12 +43,14 @@ class MentorController {
             res.status(500).json({ message: error.message });
         }
     }
-
     async getAvailableSessions(req, res) {
         const { userId } = req.query;
         try {
             const sessions = await MentorshipSession.find({
                 $expr: { $lt: [{ $size: "$registeredStudents" }, "$maxParticipants"] }
+            }).populate({
+                path: 'mentorId',
+                select: 'fullName email mentorDetails.jobTitle mentorDetails.university mentorDetails.linkedinUrl mentorDetails.githubUrl'
             });
 
             const sessionsWithRegistrationStatus = sessions.map(session => ({

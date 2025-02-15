@@ -51,11 +51,9 @@ const Signup = () => {
       aboutMe: '',
       hourlyRate: '',
       responseTime: '',
-      education: {
         degree: '',
         university: '',
-        year: ''
-      },
+        year: '',
       technicalSkills: '', // Changed from array to string
       availableSlots: ''
     }
@@ -71,6 +69,7 @@ const Signup = () => {
 
   const handleRoleSpecificChange = (e, type) => {
     const { name, value } = e.target;
+    console.log(name,value)
     if (name.includes('experience.')) {
       // Handle experience array updates
       const [, index, field] = name.split('.');
@@ -99,7 +98,9 @@ const Signup = () => {
           }
         }
       }));
-    } else {
+    } 
+    
+    else {
       // Handle regular fields
       setFormData(prev => ({
         ...prev,
@@ -159,6 +160,7 @@ const handleAddExperience = () => {
   const handleSubmit = async (e) => {
 
     console.log('handle submit')
+    console.log(formData)
     e.preventDefault();
     // if (!validateForm()) return;
 
@@ -174,6 +176,7 @@ const handleAddExperience = () => {
         body: JSON.stringify({
           fullName: formData.fullName,
           role: formData.role,
+          email : formData.email,
           phoneNumber: formData.phoneNumber,
           location: formData.location,
           profileImage: formData.profileImage,
@@ -718,7 +721,7 @@ const handleAddExperience = () => {
             type="text"
             name="degree"
             placeholder="Degree (e.g., M.Sc. Computer Science)"
-            value={formData.mentorDetails.education.degree}
+            value={formData.mentorDetails.degree}
             onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -726,7 +729,7 @@ const handleAddExperience = () => {
             type="text"
             name="university"
             placeholder="University"
-            value={formData.mentorDetails.education.university}
+            value={formData.mentorDetails.university}
             onChange={(e) => handleRoleSpecificChange(e, 'mentor')}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

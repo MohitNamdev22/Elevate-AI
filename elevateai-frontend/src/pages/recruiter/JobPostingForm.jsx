@@ -6,7 +6,8 @@ const JobPostingForm = () => {
   const [formData, setFormData] = useState({
     jobTitle: '',
     jobDescription: '',
-    requiredSkills: [],
+    companyName: '',
+    requiredSkills: '',
     experienceLevel: 'Senior',
     jobType: '',
     workLocation: '',
@@ -26,9 +27,37 @@ const JobPostingForm = () => {
     { number: 4, title: 'Preview' }
   ];
 
-  const handleSubmit = () => {
+  const categories = [
+    'web-development',
+    'backend-development',
+    'frontend-development',
+    '3d-printing',
+    'data-science',
+    'graphic-design',
+    'machine-learning'
+  ];
+
+  const handleSubmit = async () => {
     console.log('Form Submitted:', formData);
-    // Add your submission logic here
+    try {
+      const response = await fetch('http://localhost:3000/api/internships/post-job', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Job posted successfully:', result);
+        // Reset form or navigate to another page
+      } else {
+        console.error('Failed to post job:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error posting job:', error);
+    }
   };
 
   return (
@@ -99,18 +128,31 @@ const JobPostingForm = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Required Skills
+                    Company Name
                   </label>
                   <input
                     type="text"
-                    placeholder="Add skills (e.g, React, Node.js, Python)"
+                    placeholder="e.g. Tech Corp"
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                    value={formData.requiredSkills.join(', ')}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      requiredSkills: e.target.value.split(',').map(skill => skill.trim())
-                    })}
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({...formData, companyName: e.target.value})}
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Required Skills
+                  </label>
+                  <select
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                    value={formData.requiredSkills}
+                    onChange={(e) => setFormData({...formData, requiredSkills: e.target.value})}
+                  >
+                    <option value="" disabled>Select a category</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -286,7 +328,7 @@ const JobPostingForm = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-2">Required Skills</h3>
-                  <p className="text-gray-900">{formData.requiredSkills.join(', ')}</p>
+                  <p className="text-gray-900">{formData.requiredSkills}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-2">Experience Level</h3>

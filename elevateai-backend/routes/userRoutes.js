@@ -16,4 +16,11 @@ router.get('/:id/commits-last-7-days', UserController.getCommitsLast7DaysForUser
 // Route to get LeetCode stats for a user
 router.get('/:id/leetcode-stats', UserController.getLeetCodeStats);
 
+// Route to get top categories based on student profile
+router.post('/top-categories', UserController.getTopCategories);
+// Route to get job recommendations based on top categories
+router.post('/top-categories-and-jobs', UserController.getTopCategoriesAndJobs);
+
+
+
 module.exports = router;

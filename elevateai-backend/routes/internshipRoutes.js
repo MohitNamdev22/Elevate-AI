@@ -6,5 +6,6 @@ const internshipController = require('../controllers/internshipController');
 router.get('/', internshipController.getAllInternships);
 router.get('/categories', internshipController.getAllCategories);
 router.get('/category/:category', internshipController.getInternshipsByCategory);
+router.post('/post-job', internshipController.postInternship);
 
 module.exports = router;
