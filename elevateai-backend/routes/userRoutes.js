@@ -6,5 +6,14 @@ const router = express.Router();
 router.post('/addUser', UserController.addUser);
 router.get('/user/:id', UserController.getUserById);
 router.put('/user/:id', UserController.updateUser);
+// Route to get GitHub details for a student
+router.get('/:id/github-details', UserController.getGitHubDetails);
+// Route to get total commits and commits in the last 7 days for a repository
+router.get('/repos/:owner/:repo/commits', UserController.getRepoCommits);
+router.get('/:id/total-commits', UserController.getTotalCommitsForUser);
+router.get('/:id/commits-last-7-days', UserController.getCommitsLast7DaysForUser);
+
+// Route to get LeetCode stats for a user
+router.get('/:id/leetcode-stats', UserController.getLeetCodeStats);
 
 module.exports = router;
