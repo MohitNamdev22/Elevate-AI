@@ -128,6 +128,106 @@ const LeetCodeProgress = () => {
   );
 };
 
+const RecommendedJobs = () => {
+  const [jobs, setJobs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          throw new Error('User ID not found');
+        }
+  
+        // Add setTimeout to delay the fetch
+        await new Promise(resolve => setTimeout(resolve, 3000));
+  
+        const response = await fetch('http://localhost:3000/api/users/top-categories-and-jobs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            studentId: userId
+          })
+        });
+  
+        const data = await response.json();
+        console.log(data);
+  
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch jobs');
+        }
+  
+        setJobs(data.topJobs);
+        setCategories(data.topCategories);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching jobs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchJobs();
+  }, []);
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Recommended Jobs</h3>
+        <div className="flex gap-2">
+          {categories.map((category, index) => (
+            <span 
+              key={index}
+              className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full"
+            >
+              {category}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : error ? (
+        <div className="text-red-500 text-center p-4">{error}</div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6 mt-4">
+          {jobs.map((job) => (
+            <div key={job._id} className="border p-4 rounded-lg shadow-sm">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-medium">{job.title}</h4>
+                {/* <span className={`text-xs px-2 py-1 rounded-full ${
+                  job.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {job.active ? 'Active' : 'Closed'}
+                </span> */}
+              </div>
+              <p className="text-sm text-gray-500">{job.company} - {job.location}</p>
+              <p className="text-sm text-gray-700">{job.stipend}</p>
+              <div className="mt-4 space-y-2">
+                <button 
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700 transition-colors"
+                  onClick={() => window.open(job.link, '_blank')}
+                  // disabled={!job.active}
+                >
+                  Apply Now
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const StudentDashboard = () => {
   return (
     <div className="flex bg-[#F8FAFC]">
@@ -160,14 +260,12 @@ const StudentDashboard = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-6 mt-6">
           {/* GitHub Activity */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
             <GitHubActivity />
-          </div>
+          
 
           {/* LeetCode Progress */}
-          <div className="bg-white p-6 rounded-lg shadow-md flex-1">
             <LeetCodeProgress /> 
-          </div>
+          
 
           {/* Mock Interviews */}
           <div className="bg-white p-6 rounded-lg shadow-md flex-1">
@@ -201,38 +299,7 @@ const StudentDashboard = () => {
 
         {/* Top Opportunities */}
         <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-          <h3 className="text-lg font-semibold">Top Opportunities</h3>
-          <div className="grid grid-cols-3 gap-6 mt-4">
-            {/* Opportunity 1 */}
-            <div className="border p-4 rounded-lg shadow-sm">
-              <h4 className="font-medium">AI Engineer Intern</h4>
-              <p className="text-sm text-gray-500">TechCorp - San Francisco, CA</p>
-              <p className="text-sm text-gray-700">$8000/month</p>
-              <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md w-full">
-                Apply Now
-              </button>
-            </div>
-
-            {/* Opportunity 2 */}
-            <div className="border p-4 rounded-lg shadow-sm">
-              <h4 className="font-medium">ML Research Assistant</h4>
-              <p className="text-sm text-gray-500">DataViz Inc - New York, NY</p>
-              <p className="text-sm text-gray-700">$7500/month</p>
-              <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md w-full">
-                Apply Now
-              </button>
-            </div>
-
-            {/* Opportunity 3 */}
-            <div className="border p-4 rounded-lg shadow-sm">
-              <h4 className="font-medium">Junior Data Scientist</h4>
-              <p className="text-sm text-gray-500">AI Solutions - Boston, MA</p>
-              <p className="text-sm text-gray-700">$85,000/year</p>
-              <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md w-full">
-                Apply Now
-              </button>
-            </div>
-          </div>
+          <RecommendedJobs />
         </div>
 
         {/* Hiring Challenges */}
