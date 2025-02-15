@@ -193,6 +193,21 @@ const handleAddExperience = () => {
         throw new Error(data.message || 'Registration failed');
       }
 
+      const userData = {
+        userId: data.userId,
+        fullName: formData.fullName,
+        email: formData.email,
+        role: formData.role,
+        phoneNumber: formData.phoneNumber,
+        location: formData.location,
+        profileImage: formData.profileImage,
+        [formData.role.toLowerCase() + 'Details']: formData[formData.role.toLowerCase() + 'Details']
+      };
+  
+      localStorage.setItem('userData', JSON.stringify(userData));
+      localStorage.setItem('userId', data.userId);
+  
+
       if(formData.role === 'Student'){
         navigate('/student/dashboard', { state: { message: 'Registration successful! Please log in.' } });
       }
