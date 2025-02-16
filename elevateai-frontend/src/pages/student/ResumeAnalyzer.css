@@ -1,0 +1,11 @@
+.chat-panel {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .chat-panel.slide-in {
+    transform: translateX(0);
+  }
+  
+  .chat-panel.slide-out {
+    transform: translateX(100%);
+  }
