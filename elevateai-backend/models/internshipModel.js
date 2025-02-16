@@ -12,7 +12,8 @@ const InternshipSchema = new mongoose.Schema({
     posted_time: { type: String, default: "N/A" },  // date.now
     source: { type: String, default: "internshala" }, // I have to add manual here
     stipend: { type: String, default: "N/A" } ,// isko change karna hai
-    recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false } // optional recruiter field
+    recruiter: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // optional recruiter field
+    applicants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // array of applicants
 });
 
 module.exports = mongoose.model("Internship", InternshipSchema);
