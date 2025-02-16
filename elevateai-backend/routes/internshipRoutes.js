@@ -13,6 +13,6 @@ router.get('/recruiter/:recruiterId', internshipController.getJobsByRecruiter);
 router.get('/:jobId/applicants', internshipController.getApplicantsByJob);
 
 // Route to get applicants for all jobs posted by a specific recruiter
-router.get('/:recruiterId/applicants', internshipController.getApplicantsByRecruiter);
+router.get('/:recruiterId/applicants1', internshipController.getApplicantsByRecruiter);
 
 module.exports = router;

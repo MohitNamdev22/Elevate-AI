@@ -244,6 +244,105 @@ const RecommendedJobs = () => {
   );
 };
 
+const AllJobs = () => {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/internships/');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch jobs');
+        }
+
+        setJobs(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching jobs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  const handleApply = async (jobId) => {
+    const userId = localStorage.getItem('userId');
+
+    console.log(jobId, userId);
+    if (!userId) {
+      console.error('User ID not found');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/api/internships/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          jobId
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to apply for job');
+      }
+
+      console.log('Applied successfully:', data);
+      alert('Applied successfully!');
+    } catch (err) {
+      console.error('Error applying for job:', err);
+      alert('Error applying for job: ' + err.message);
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">All Jobs</h3>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : error ? (
+        <div className="text-red-500 text-center p-4">{error}</div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6 mt-4">
+          {jobs.map((job) => (
+            <div key={job._id} className="border p-4 rounded-lg shadow-sm">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-medium">{job.title}</h4>
+              </div>
+              <p className="text-sm text-gray-500">{job.company} - {job.location}</p>
+              <p className="text-sm text-gray-700">{job.stipend}</p>
+              <div className="mt-4 space-y-2">
+                <button 
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700 transition-colors"
+                  onClick={() => handleApply(job._id)}
+                >
+                  Apply Now
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const StudentDashboard = () => {
   return (
     <div className="flex bg-[#F8FAFC]">
@@ -295,7 +394,7 @@ const StudentDashboard = () => {
         </div>
 
         {/* AI Specialist Roadmap */}
-        <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+        {/* <div className="bg-white p-6 rounded-lg shadow-md mt-6">
           <h3 className="text-lg font-semibold">AI Specialist Roadmap</h3>
           <div className="mt-4 grid grid-cols-4 gap-4">
             <div className="bg-green-100 text-green-700 p-2 rounded-md text-center">
@@ -311,11 +410,15 @@ const StudentDashboard = () => {
               Neural Network - Upcoming
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Top Opportunities */}
         <div className="bg-white p-6 rounded-lg shadow-md mt-6">
           <RecommendedJobs />
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md mt-6">
+          <AllJobs />
         </div>
 
         {/* Hiring Challenges */}
