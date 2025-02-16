@@ -22,29 +22,61 @@ const ManageSessions = () => {
   
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(-1);
+  const [studentDetails, setStudentDetails] = useState({});
+
+
+  const fetchStudentDetails = async (studentId) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/users/user/${studentId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching student details for ${studentId}:`, error);
+      return null;
+    }
+  };
+  
+  const fetchAvailableSlots = async () => {
+    try {
+      const mentorId = localStorage.getItem('userId');
+      if (!mentorId) {
+        console.error('Mentor ID not found');
+        return;
+      }
+  
+      const response = await axios.post('http://localhost:3000/api/mentors/created-sessions', {
+        mentorId: mentorId
+      });
+  
+      // Fetch student details for all registered students
+      const allStudentIds = new Set();
+      response.data.forEach(slot => {
+        slot.registeredStudents.forEach(studentId => {
+          if (studentId) allStudentIds.add(studentId);
+        });
+      });
+
+      const studentDetailsPromises = Array.from(allStudentIds).map(fetchStudentDetails);
+    const studentDetailsResults = await Promise.all(studentDetailsPromises);
+
+    const studentDetailsMap = {};
+    Array.from(allStudentIds).forEach((id, index) => {
+      if (studentDetailsResults[index]) {
+        studentDetailsMap[id] = studentDetailsResults[index];
+      }
+    });
+
+    setStudentDetails(studentDetailsMap);
+    setSlots(response.data);
+  } catch (error) {
+    console.error('Error fetching available slots:', error);
+  }
+};
 
   useEffect(() => {
     fetchAvailableSlots();
   }, []);
 
-  const fetchAvailableSlots = async () => {
-    try {
-      const mentorId = localStorage.getItem('userId');
-      console.log(mentorId);
-      if (!mentorId) {
-        console.error('Mentor ID not found');
-        return;
-      }
-
-      const response = await axios.post('http://localhost:3000/api/mentors/created-sessions', {
-        mentorId: mentorId
-      });
-
-      setSlots(response.data);
-    } catch (error) {
-      console.error('Error fetching available slots:', error);
-    }
-  };
+  
 
   const [newSlot, setNewSlot] = useState({
     date: new Date(),
@@ -136,6 +168,7 @@ const ManageSessions = () => {
     <div className="flex bg-[#F8FAFC]">
       <Sidebar />
       <div className="mt-16 p-8 w-full min-h-screen">
+        Alumni Mentorship 
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-semibold">Manage Availability</h1>
@@ -293,59 +326,82 @@ const ManageSessions = () => {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
   <h3 className="font-semibold text-lg mb-6">Available Time Slots</h3>
   <div className="space-y-4">
-    {slots.map((slot) => (
-      <motion.div
-        key={slot._id}
-        whileHover={{ scale: 1.02 }}
-        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+  {slots.map((slot) => (
+  <motion.div
+    key={slot._id}
+    whileHover={{ scale: 1.02 }}
+    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+  >
+    <div className="flex-1">
+      <div className="flex items-center gap-4">
+        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+          <FaClock className="text-blue-600" />
+        </div>
+        <div>
+          <h4 className="font-medium">
+            {new Date(slot.date).toLocaleDateString()} |{' '}
+            {slot.startTime} - {slot.endTime}
+          </h4>
+          <p className="text-gray-600 text-sm">
+            {slot.sessionType} • {slot.recurrence !== 'None' && `Repeats ${slot.recurrence}`}
+          </p>
+          <p className="text-gray-500 text-sm mt-1">
+            {slot.description}
+          </p>
+        </div>
+      </div>
+
+      {/* Registered Students Section */}
+      {slot.registeredStudents.length > 0 && (
+        <div className="mt-4 ml-14">
+          <h5 className="text-sm font-medium text-gray-700 mb-2">
+            Registered Students ({slot.registeredStudents.length}/{slot.maxParticipants})
+          </h5>
+          <div className="space-y-2">
+            {slot.registeredStudents.map((studentId, index) => {
+              const student = studentDetails[studentId];
+              return student ? (
+                <div key={index} className="flex items-center gap-3 bg-white p-2 rounded-lg">
+                  {student.profileImage ? (
+                    <img
+                      src={student.profileImage}
+                      alt={student.fullName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      {student.fullName.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">{student.fullName}</p>
+                    <p className="text-xs text-gray-500">{student.email}</p>
+                  </div>
+                </div>
+              ) : null;
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Existing action buttons */}
+    <div className="flex gap-2 ml-4">
+      <button
+        onClick={() => {/* ...existing edit handler... */}}
+        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
       >
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <FaClock className="text-blue-600" />
-          </div>
-          <div>
-            <h4 className="font-medium">
-              {new Date(slot.date).toLocaleDateString()} |{' '}
-              {slot.startTime} - {slot.endTime}
-            </h4>
-            <p className="text-gray-600 text-sm">
-              {slot.sessionType} • {slot.recurrence !== 'None' && `Repeats ${slot.recurrence}`}
-            </p>
-            <p className="text-gray-500 text-sm mt-1">
-              {slot.description}
-            </p>
-            {slot.sessionType !== 'One-on-One' && (
-              <p className="text-sm text-blue-600 mt-1">
-                {slot.registeredStudents.length} / {slot.maxParticipants} participants
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setEditingIndex(slots.indexOf(slot));
-              setNewSlot({
-                ...slot,
-                date: new Date(slot.date),
-                startTime: new Date(`2024-01-01 ${slot.startTime}`),
-                endTime: new Date(`2024-01-01 ${slot.endTime}`)
-              });
-              setShowForm(true);
-            }}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          >
-            <FaEdit size={18} />
-          </button>
-          <button
-            onClick={() => handleDeleteSlot(slot._id)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          >
-            <FaTrash size={18} />
-          </button>
-        </div>
-      </motion.div>
-    ))}
+        <FaEdit size={18} />
+      </button>
+      <button
+        onClick={() => handleDeleteSlot(slot._id)}
+        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+      >
+        <FaTrash size={18} />
+      </button>
+    </div>
+  </motion.div>
+))}
     {slots.length === 0 && (
       <div className="text-center py-8 text-gray-500">
         No availability slots created yet
