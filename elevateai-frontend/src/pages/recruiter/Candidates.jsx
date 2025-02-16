@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from "./Sidebar";
 import { 
   FaSearch, 
@@ -20,6 +20,58 @@ const CandidatesAnalytics = () => {
     { label: 'Active Job Postings', value: 12, change: '+5%' },
     { label: 'Average Time to Hire', value: '15 Days', change: '-10%' }
   ];
+
+  // State to store the fetched data
+  const [applicants, setApplicants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchApplicants = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          throw new Error('User ID not found');
+        }
+
+        // Fetch applicants data from the first API
+        const response = await fetch(`http://localhost:3000/api/internships/${userId}/applicants1`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch applicants');
+        }
+
+        // Send the fetched applicants data to the second API
+        const response2 = await fetch('https://sort-sft4.onrender.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            candidate: data,
+            jobDescription: 'This job is for web development'
+          })
+        });
+
+        const finalData = await response2.json();
+        console.log(finalData); // Log the final data to the console
+
+        if (!response2.ok) {
+          throw new Error(finalData.message || 'Failed to process applicants');
+        }
+
+        setApplicants(finalData);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching applicants:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplicants();
+  }, []);
 
   // Enhanced candidates data
   const bestMatchCandidates = [
