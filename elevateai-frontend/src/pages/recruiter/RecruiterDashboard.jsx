@@ -40,7 +40,7 @@ const RecruiterDashboard = () => {
                 .catch(error => console.error('Error fetching jobs:', error));
 
             // Fetch applicants for all jobs posted by the recruiter
-            fetch(`http://localhost:3000/api/internships/recruiter/${parsedUserData.userId}/applicants`)
+            fetch(`http://localhost:3000/api/internships/${parsedUserData.userId}/applicants1`)
                 .then(response => response.json())
                 .then(data => setApplicants(data))
                 .catch(error => console.error('Error fetching applicants:', error));
@@ -193,22 +193,20 @@ const RecruiterDashboard = () => {
                                 <th className="pb-4">EMAIL</th>
                                 <th className="pb-4">JOB TITLE</th>
                                 <th className="pb-4">UNIVERSITY</th>
-                                <th className="pb-4">DEGREE</th>
-                                <th className="pb-4">MAJOR</th>
                                 <th className="pb-4">GRADUATION YEAR</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {console.log(applicants)}
                             {applicants.map((job, index) => (
                                 job.applicants.map((applicant, applicantIndex) => (
                                     <tr key={`${index}-${applicantIndex}`} className="border-t">
                                         <td className="py-4">{applicant.fullName}</td>
                                         <td>{applicant.email}</td>
                                         <td>{job.jobTitle}</td>
-                                        <td>{applicant.studentDetails.university}</td>
-                                        <td>{applicant.studentDetails.degree}</td>
-                                        <td>{applicant.studentDetails.major}</td>
-                                        <td>{applicant.studentDetails.graduationYear}</td>
+                                        <td>{applicant.studentDetails.collegeName}</td>
+                                        
+                                        <td>{applicant.studentDetails.yearOfStudy}</td>
                                     </tr>
                                 ))
                             ))}
