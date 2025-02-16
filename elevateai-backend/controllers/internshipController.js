@@ -74,7 +74,7 @@ class InternshipController {
         const { userId } = req.query;
     
         try {
-            const internships = await Internship.find().populate('recruiter', 'fullName email');
+            const internships = await Internship.find({ recruiter: { $exists: true, $ne: null } }).populate('recruiter', 'fullName email');
     
             const internshipsWithRegistrationStatus = internships.map(internship => ({
                 ...internship.toObject(),
@@ -144,6 +144,7 @@ class InternshipController {
     }
 
     async getApplicantsByRecruiter(req, res) {
+        console.log("I am here")
         const { recruiterId } = req.params;
         console.log(recruiterId)
         try {
