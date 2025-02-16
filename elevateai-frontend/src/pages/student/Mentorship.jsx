@@ -1,8 +1,55 @@
-import React from 'react';
-import { FaSearch, FaMapMarkerAlt, FaClock, FaLinkedin, FaGithub } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaMapMarkerAlt, FaClock, FaLinkedin, FaGithub, FaUsers, FaCalendar } from 'react-icons/fa';
+import axios from 'axios';
 import Sidebar from './Sidebar';
 
 const Mentorship = () => {
+    const [sessions, setSessions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [mentorDetails, setMentorDetails] = useState({});
+
+    useEffect(() => {
+        fetchSessions();
+    }, []);
+
+    const fetchSessions = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/mentors/available-sessions');
+            setSessions(response.data);
+            
+            // Fetch mentor details for each unique mentor
+            const uniqueMentorIds = [...new Set(response.data.map(session => session.mentorId._id))];
+            const mentorPromises = uniqueMentorIds.map(fetchMentorDetails);
+            const mentorData = await Promise.all(mentorPromises);
+            
+            const mentorMap = {};
+            mentorData.forEach((mentor, index) => {
+                mentorMap[uniqueMentorIds[index]] = mentor;
+            });
+            
+            setMentorDetails(mentorMap);
+        } catch (error) {
+            console.error('Error fetching sessions:', error);
+            setError('Failed to load available sessions');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const fetchMentorDetails = async (mentorId) => {
+        try {
+            const response = await axios.get(`http://localhost:3000/api/users/user/${mentorId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching mentor details for ${mentorId}:`, error);
+            return null;
+        }
+    };
+
+
+
     const mentors = [
         {
             name: 'Samantha Tan',
@@ -127,84 +174,101 @@ const Mentorship = () => {
                     </button>
                 </div>
 
-                {/* Mentor Grid */}
+                {/* Sessions Grid */}
                 <div className="grid grid-cols-3 gap-6 mb-12">
-                    {mentors.map((mentor, index) => (
-                        <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
-                            <div className="flex items-start gap-4 mb-4">
-                                <img
-                                    src={mentor.image}
-                                    alt={mentor.name}
-                                    className="w-12 h-12 rounded-full"
-                                />
-                                <div>
-                                    <h3 className="font-medium">{mentor.name}</h3>
-                                    <p className="text-sm text-gray-600">{mentor.role}</p>
-                                    <p className="text-sm text-gray-600">{mentor.company}</p>
+                    {sessions.map((session) => {
+                        const mentor = session.mentorId;
+                        const mentorDetail = mentorDetails[mentor._id];
+                        
+                        return (
+                            <div key={session._id} className="bg-white p-6 rounded-lg border border-gray-200">
+                                <div className="flex items-start gap-4 mb-4">
+                                    <img
+                                        src={mentorDetail?.profileImage || '/default-avatar.png'}
+                                        alt={mentor.fullName}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                    />
+                                    <div>
+                                        <h3 className="font-medium">{mentor.fullName}</h3>
+                                        <p className="text-sm text-gray-600">{mentor.mentorDetails.jobTitle || 'Mentor'}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 mb-4">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <FaCalendar className="text-gray-500" />
+                                        <span>{new Date(session.date).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <FaClock className="text-gray-500" />
+                                        <span>{session.startTime} - {session.endTime}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <FaUsers className="text-gray-500" />
+                                        <span>{session.sessionType} ({session.registeredStudents.length}/{session.maxParticipants})</span>
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <h4 className="font-medium mb-2">About Session</h4>
+                                    <p className="text-sm text-gray-600">{session.description}</p>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {mentorDetail?.mentorDetails?.technicalSkills?.map((skill, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded"
+                                        >
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button 
+                                        className={`flex-1 py-2 rounded-lg ${
+                                            session.isRegistered 
+                                                ? 'bg-gray-100 text-gray-600 cursor-not-allowed'
+                                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                        }`}
+                                        disabled={session.isRegistered}
+                                    >
+                                        {session.isRegistered ? 'Already Registered' : 'Register Now'}
+                                    </button>
+                                    {mentorDetail?.mentorDetails?.linkedinUrl && (
+                                        <a
+                                            href={mentorDetail.mentorDetails.linkedinUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+                                        >
+                                            <FaLinkedin className="text-[#0077b5]" />
+                                        </a>
+                                    )}
                                 </div>
                             </div>
-
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {mentor.skills.map((skill, idx) => (
-                                    <span
-                                        key={idx}
-                                        className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded"
-                                    >
-                                        {skill}
-                                    </span>
-                                ))}
-                            </div>
-
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                                <FaMapMarkerAlt />
-                                <span>{mentor.location}</span>
-                            </div>
-
-                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                                <FaClock />
-                                <span>{mentor.availability}</span>
-                            </div>
-
-                            <div className="flex items-center mb-4">
-                                {renderStars(mentor.rating, mentor.reviews)}
-                            </div>
-
-                            <div className="flex gap-2 mb-4">
-                                {mentor.social.includes('linkedin') && (
-                                    <FaLinkedin className="text-gray-600" />
-                                )}
-                                {mentor.social.includes('github') && (
-                                    <FaGithub className="text-gray-600" />
-                                )}
-                            </div>
-
-                            <div className="flex gap-2">
-                                <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg">
-                                    Book Session
-                                </button>
-                                <button className="flex-1 border border-gray-200 text-gray-700 py-2 rounded-lg">
-                                    View Profile
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
-                {/* Bottom CTA */}
-                <div className="bg-blue-600 text-white p-8 rounded-lg flex justify-between items-center">
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Ready to accelerate your growth?</h2>
-                        <p>Get personalized mentor recommendations based on your goals.</p>
+                {loading && (
+                    <div className="flex justify-center items-center min-h-[200px]">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                     </div>
-                    <div className="flex gap-4">
-                        <button className="bg-white text-blue-600 px-6 py-2 rounded-lg">
-                            Quick Connect
-                        </button>
-                        <button className="border border-white text-white px-6 py-2 rounded-lg">
-                            Get Recommendations
-                        </button>
+                )}
+
+                {error && (
+                    <div className="text-center text-red-600 p-4">
+                        {error}
                     </div>
-                </div>
+                )}
+
+                {!loading && !error && sessions.length === 0 && (
+                    <div className="text-center text-gray-600 p-4">
+                        No sessions available at the moment.
+                    </div>
+                )}
             </div>
         </div>
     );
