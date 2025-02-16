@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import {useEffect} from 'react';
 import { 
   FaRegCalendarAlt,
   FaPlus,
@@ -21,6 +22,29 @@ const ManageSessions = () => {
   
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(-1);
+
+  useEffect(() => {
+    fetchAvailableSlots();
+  }, []);
+
+  const fetchAvailableSlots = async () => {
+    try {
+      const mentorId = localStorage.getItem('userId');
+      console.log(mentorId);
+      if (!mentorId) {
+        console.error('Mentor ID not found');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:3000/api/mentors/created-sessions', {
+        mentorId: mentorId
+      });
+
+      setSlots(response.data);
+    } catch (error) {
+      console.error('Error fetching available slots:', error);
+    }
+  };
 
   const [newSlot, setNewSlot] = useState({
     date: new Date(),
@@ -44,6 +68,7 @@ const ManageSessions = () => {
 
   const handleCreateSlot = async () => {
     try {
+      
       const mentorId = localStorage.getItem('userId'); // Get mentorId from localStorage
       
       // Format the date and time
@@ -74,6 +99,9 @@ const ManageSessions = () => {
   
       if (response.data) {
         // Update local state with new slot
+        fetchAvailableSlots();
+  
+  setSuccessMessage('Session created successfully!');
         if (editingIndex === -1) {
           setSlots([...slots, response.data]);
         } else {
@@ -263,38 +291,68 @@ const ManageSessions = () => {
 
         {/* Existing Slots */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-lg mb-6">Available Time Slots</h3>
-          <div className="space-y-4">
-          {slots.map((slot, index) => (
-  <motion.div
-    key={index}
-    whileHover={{ scale: 1.02 }}
-    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-  >
-    <div className="flex items-center gap-4">
-      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-        <FaClock className="text-blue-600" />
-      </div>
-      <div>
-        <h4 className="font-medium">
-          {formatSlotDate(slot.date)} |{' '}
-          {slot.startTime} - {slot.endTime}
-        </h4>
-        <p className="text-gray-600 text-sm capitalize">
-          {slot.sessionType} • {slot.recurrence !== 'None' && `Repeats ${slot.recurrence}`}
-        </p>
-      </div>
-    </div>
-    {/* ...rest of the code... */}
-  </motion.div>
-))}
-            {slots.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No availability slots created yet
-              </div>
+  <h3 className="font-semibold text-lg mb-6">Available Time Slots</h3>
+  <div className="space-y-4">
+    {slots.map((slot) => (
+      <motion.div
+        key={slot._id}
+        whileHover={{ scale: 1.02 }}
+        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <FaClock className="text-blue-600" />
+          </div>
+          <div>
+            <h4 className="font-medium">
+              {new Date(slot.date).toLocaleDateString()} |{' '}
+              {slot.startTime} - {slot.endTime}
+            </h4>
+            <p className="text-gray-600 text-sm">
+              {slot.sessionType} • {slot.recurrence !== 'None' && `Repeats ${slot.recurrence}`}
+            </p>
+            <p className="text-gray-500 text-sm mt-1">
+              {slot.description}
+            </p>
+            {slot.sessionType !== 'One-on-One' && (
+              <p className="text-sm text-blue-600 mt-1">
+                {slot.registeredStudents.length} / {slot.maxParticipants} participants
+              </p>
             )}
           </div>
         </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditingIndex(slots.indexOf(slot));
+              setNewSlot({
+                ...slot,
+                date: new Date(slot.date),
+                startTime: new Date(`2024-01-01 ${slot.startTime}`),
+                endTime: new Date(`2024-01-01 ${slot.endTime}`)
+              });
+              setShowForm(true);
+            }}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <FaEdit size={18} />
+          </button>
+          <button
+            onClick={() => handleDeleteSlot(slot._id)}
+            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <FaTrash size={18} />
+          </button>
+        </div>
+      </motion.div>
+    ))}
+    {slots.length === 0 && (
+      <div className="text-center py-8 text-gray-500">
+        No availability slots created yet
+      </div>
+    )}
+  </div>
+</div>
       </div>
     </div>
   );
