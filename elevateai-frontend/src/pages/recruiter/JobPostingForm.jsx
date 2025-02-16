@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from "./Sidebar";
+import {useNavigate} from 'react-router-dom'
 
 const JobPostingForm = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     jobTitle: '',
@@ -13,6 +15,7 @@ const JobPostingForm = () => {
     workLocation: '',
     location: '',
     benefits: [],
+    recruiter:'',
     salaryRange: {
       currency: 'USD',
       min: '',
@@ -20,6 +23,15 @@ const JobPostingForm = () => {
     }
   });
 
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        recruiter: userId
+      }));
+    }
+  }, []);
   const steps = [
     { number: 1, title: 'Job Details' },
     { number: 2, title: 'Job Type & Location' },
@@ -51,6 +63,7 @@ const JobPostingForm = () => {
       if (response.ok) {
         const result = await response.json();
         console.log('Job posted successfully:', result);
+        navigate('/recruiter/dashboard')
         // Reset form or navigate to another page
       } else {
         console.error('Failed to post job:', response.statusText);

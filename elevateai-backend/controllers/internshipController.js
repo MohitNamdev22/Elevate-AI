@@ -69,8 +69,101 @@ class InternshipController {
             res.status(500).json({ message: 'Server error posting internship' });
         }
     }
-            
+        
+    async getAllJobs(req, res) {
+        const { userId } = req.query;
+    
+        try {
+            const internships = await Internship.find().populate('recruiter', 'fullName email');
+    
+            const internshipsWithRegistrationStatus = internships.map(internship => ({
+                ...internship.toObject(),
+                isRegistered: internship.applicants.includes(userId),
+                jobPosterName: internship.recruiter ? internship.recruiter.fullName : 'N/A'
+            }));
+    
+            res.status(200).json(internshipsWithRegistrationStatus);
+        } catch (error) {
+            console.error('Error fetching internships:', error);
+            res.status(500).json({ message: 'Server error fetching internships' });
+        }
+    }
+
    
+
+    async applyForJob(req, res) {
+        const { userId, jobId } = req.body;
+
+        try {
+            const internship = await Internship.findById(jobId);
+            if (!internship) {
+                return res.status(404).json({ message: 'Job not found' });
+            }
+
+            // Check if the user has already applied
+            if (internship.applicants.includes(userId)) {
+                return res.status(400).json({ message: 'User has already applied for this job' });
+            }
+
+            internship.applicants.push(userId);
+            await internship.save();
+
+            res.status(200).json({ message: 'Applied successfully', internship });
+        } catch (error) {
+            console.error('Error applying for job:', error);
+            res.status(500).json({ message: 'Server error applying for job' });
+        }
+    }
+
+    async getJobsByRecruiter(req, res) {
+        const { recruiterId } = req.params;
+
+        try {
+            const internships = await Internship.find({ recruiter: recruiterId }).populate('recruiter', 'fullName email');
+
+            res.status(200).json(internships);
+        } catch (error) {
+            console.error('Error fetching internships by recruiter:', error);
+            res.status(500).json({ message: 'Server error fetching internships by recruiter' });
+        }
+    }
+    async getApplicantsByJob(req, res) {
+        const { jobId } = req.params;
+
+        try {
+            const internship = await Internship.findById(jobId).populate('applicants', 'fullName email studentDetails');
+            if (!internship) {
+                return res.status(404).json({ message: 'Job not found' });
+            }
+
+            res.status(200).json(internship.applicants);
+        } catch (error) {
+            console.error('Error fetching applicants:', error);
+            res.status(500).json({ message: 'Server error fetching applicants' });
+        }
+    }
+
+    async getApplicantsByRecruiter(req, res) {
+        const { recruiterId } = req.params;
+        console.log(recruiterId)
+        try {
+            const internships = await Internship.find({ recruiter: recruiterId }).populate('applicants', 'fullName email studentDetails');
+            if (!internships.length) {
+                return res.status(404).json({ message: 'No jobs found for this recruiter' });
+            }
+
+            const applicantsByJob = internships.map(internship => ({
+                jobTitle: internship.title,
+                jobId: internship._id,
+                applicants: internship.applicants
+            }));
+
+            res.status(200).json(applicantsByJob);
+        } catch (error) {
+            console.error('Error fetching applicants by recruiter:', error);
+            res.status(500).json({ message: 'Server error fetching applicants by recruiter' });
+        }
+    }
 }
 
 module.exports = new InternshipController();
