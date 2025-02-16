@@ -6,12 +6,55 @@ import {
     LinearScale,
     BarElement
   } from 'chart.js';
+import { useEffect, useState } from "react";
   import { Doughnut, Bar } from 'react-chartjs-2';
   import { Link } from "react-router-dom";
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement);
 
 const RecruiterDashboard = () => {
+    const [fullName, setFullName] = useState('User');
+    const [jobs, setJobs] = useState([]);
+    const [totalJobs, setTotalJobs] = useState(0);
+    const [totalApplicants, setTotalApplicants] = useState(0);
+    const [averageApplications, setAverageApplications] = useState(0);
+    const [applicants, setApplicants] = useState([]);
+
+
+    useEffect(() => {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+            const parsedUserData = JSON.parse(userData);
+            setFullName(parsedUserData?.fullName);
+
+            // Fetch jobs by recruiter ID
+            fetch(`http://localhost:3000/api/internships/recruiter/${parsedUserData.userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    setJobs(data);
+                    setTotalJobs(data.length);
+                    const totalApplicantsCount = data.reduce((acc, job) => acc + job.applicants.length, 0);
+                    setTotalApplicants(totalApplicantsCount);
+                    setAverageApplications(totalApplicantsCount / data.length);
+                })
+                .catch(error => console.error('Error fetching jobs:', error));
+
+            // Fetch applicants for all jobs posted by the recruiter
+            fetch(`http://localhost:3000/api/internships/recruiter/${parsedUserData.userId}/applicants`)
+                .then(response => response.json())
+                .then(data => setApplicants(data))
+                .catch(error => console.error('Error fetching applicants:', error));
+        }
+    }, []);
+
+    const fetchApplicants = (jobId) => {
+        fetch(`http://localhost:3000/api/internships/${jobId}/applicants`)
+            .then(response => response.json())
+            .then(data => setApplicants(data))
+            .catch(error => console.error('Error fetching applicants:', error));
+    };
+
+  
   // Sample data for charts
   const doughnutData = {
     datasets: [{
@@ -51,7 +94,7 @@ const RecruiterDashboard = () => {
                 {/* Welcome Section */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-2xl font-semibold">Hello, Hitika!</h1>
+                        <h1 className="text-2xl font-semibold">Hello, {fullName}!</h1>
                         <p className="text-gray-600">Find your ideal talent today</p>
                     </div>
                     <div className="space-x-3">
@@ -69,19 +112,39 @@ const RecruiterDashboard = () => {
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-3 gap-6 mb-8">
-                    {['Active Job Posts', 'Total Applications', 'Total Applications'].map((title, index) => (
-                        <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-gray-600">{title}</p>
-                                    <h3 className="text-2xl font-bold">{index === 0 ? '5' : '120'}</h3>
-                                </div>
-                                <span className="text-green-500 text-sm">
-                                    {index === 0 ? '+2' : '+45'} this week
-                                </span>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <p className="text-gray-600">Active Job Posts</p>
+                                <h3 className="text-2xl font-bold">{totalJobs}</h3>
                             </div>
+                            <span className="text-green-500 text-sm">
+                                +{totalJobs} this week
+                            </span>
                         </div>
-                    ))}
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <p className="text-gray-600">Total Applications</p>
+                                <h3 className="text-2xl font-bold">{totalApplicants}</h3>
+                            </div>
+                            <span className="text-green-500 text-sm">
+                                +{totalApplicants} this week
+                            </span>
+                        </div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <p className="text-gray-600">Average Applications per Job</p>
+                                <h3 className="text-2xl font-bold">{averageApplications.toFixed(2)}</h3>
+                            </div>
+                            <span className="text-green-500 text-sm">
+                                +{averageApplications.toFixed(2)} this week
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Charts Section */}
@@ -100,37 +163,18 @@ const RecruiterDashboard = () => {
                     </div>
                 </div>
 
-                {/* Active Job Listings */}
-                <div className="mb-8">
+                  {/* Active Job Listings */}
+                  <div className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-semibold">Active Job Listings</h3>
-                        <button className="text-blue-600 px-4 py-2 rounded-lg border border-blue-600 hover:bg-blue-50">
-                            + Post New Job
-                        </button>
                     </div>
                     <div className="grid grid-cols-3 gap-6">
-                        {[
-                            {
-                                title: 'Senior Frontend Developer',
-                                applications: 45,
-                                days: 7
-                            },
-                            {
-                                title: 'Product Manager',
-                                applications: 32,
-                                days: 5
-                            },
-                            {
-                                title: 'UX Designer',
-                                applications: 28,
-                                days: 3
-                            }
-                        ].map((job, index) => (
+                        {jobs.map((job, index) => (
                             <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
                                 <h4 className="font-semibold mb-2">{job.title}</h4>
                                 <div className="flex justify-between text-sm text-gray-600 mb-3">
-                                    <span>Applications: {job.applications}</span>
-                                    <span>Active for {job.days} day</span>
+                                    <span>Applications: {job.applicants.length}</span>
+                                    <span>Active for {Math.floor((new Date() - new Date(job.posted_time)) / (1000 * 60 * 60 * 24))} days</span>
                                 </div>
                                 <button className="text-blue-600 text-sm hover:underline">
                                     View Details
@@ -140,75 +184,33 @@ const RecruiterDashboard = () => {
                     </div>
                 </div>
 
-                {/* Recent Applications Table */}
-                <div className="bg-white rounded-lg shadow-sm p-4">
+                  {/* Recent Applications Table */}
+                  <div className="bg-white rounded-lg shadow-sm p-4">
                     <table className="w-full">
                         <thead>
                             <tr className="text-left text-gray-600 text-sm">
                                 <th className="pb-4">NAME</th>
-                                <th className="pb-4">POSITION</th>
-                                <th className="pb-4">EXPERIENCE</th>
-                                <th className="pb-4">SKILLS</th>
-                                <th className="pb-4">STATUS</th>
-                                <th className="pb-4">ACTIONS</th>
+                                <th className="pb-4">EMAIL</th>
+                                <th className="pb-4">JOB TITLE</th>
+                                <th className="pb-4">UNIVERSITY</th>
+                                <th className="pb-4">DEGREE</th>
+                                <th className="pb-4">MAJOR</th>
+                                <th className="pb-4">GRADUATION YEAR</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {[
-                                {
-                                    name: 'Alex Thompson',
-                                    position: 'Frontend Developer',
-                                    experience: '5 years',
-                                    skills: ['React', 'TypeScript', 'Node.js'],
-                                    status: 'Shortlisted'
-                                },
-                                {
-                                    name: 'Sarah Wilson',
-                                    position: 'Product Manager',
-                                    experience: '7 years',
-                                    skills: ['Product Strategy', 'Agile', 'Leadership'],
-                                    status: 'In Review'
-                                },
-                                {
-                                    name: 'Michee Chen',
-                                    position: 'UX Designer',
-                                    experience: '4 years',
-                                    skills: ['UI Design', 'User Research', 'Figma'],
-                                    status: 'New'
-                                }
-                            ].map((candidate, index) => (
-                                <tr key={index} className="border-t">
-                                    <td className="py-4">{candidate.name}</td>
-                                    <td>{candidate.position}</td>
-                                    <td>{candidate.experience}</td>
-                                    <td>
-                                        <div className="flex gap-2">
-                                            {candidate.skills.map((skill, skillIndex) => (
-                                                <span
-                                                    key={skillIndex}
-                                                    className="px-2 py-1 bg-blue-50 text-blue-600 rounded-full text-sm"
-                                                >
-                                                    {skill}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`px-2 py-1 rounded-full text-sm ${candidate.status === 'Shortlisted'
-                                                ? 'bg-green-50 text-green-600'
-                                                : candidate.status === 'In Review'
-                                                    ? 'bg-yellow-50 text-yellow-600'
-                                                    : 'bg-blue-50 text-blue-600'
-                                            }`}>
-                                            {candidate.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button className="text-blue-600 hover:underline">
-                                            View more
-                                        </button>
-                                    </td>
-                                </tr>
+                            {applicants.map((job, index) => (
+                                job.applicants.map((applicant, applicantIndex) => (
+                                    <tr key={`${index}-${applicantIndex}`} className="border-t">
+                                        <td className="py-4">{applicant.fullName}</td>
+                                        <td>{applicant.email}</td>
+                                        <td>{job.jobTitle}</td>
+                                        <td>{applicant.studentDetails.university}</td>
+                                        <td>{applicant.studentDetails.degree}</td>
+                                        <td>{applicant.studentDetails.major}</td>
+                                        <td>{applicant.studentDetails.graduationYear}</td>
+                                    </tr>
+                                ))
                             ))}
                         </tbody>
                     </table>
