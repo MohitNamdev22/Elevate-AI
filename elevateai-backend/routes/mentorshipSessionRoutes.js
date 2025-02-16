@@ -6,7 +6,7 @@ const mentorController = require('../controllers/mentorController');
 router.post('/sessions', mentorController.createSession);
 
 // Route to get all sessions of a mentor
-router.get('/sessions', mentorController.getSessions);
+router.post('/created-sessions', mentorController.getSessions);
 
 // Route for students to register for a session
 router.post('/sessions/:sessionId/register', mentorController.registerForSession);
