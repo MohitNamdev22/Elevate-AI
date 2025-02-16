@@ -48,6 +48,51 @@ const Mentorship = () => {
         }
     };
 
+    const handleRegistration = async (sessionId) => {
+        try {
+          const userId = localStorage.getItem('userId');
+          if (!userId) {
+            alert('Please login to register for sessions');
+            return;
+          }
+      
+          // Show loading state on the button
+          const updatedSessions = sessions.map(s => 
+            s._id === sessionId ? { ...s, isRegistering: true } : s
+          );
+          setSessions(updatedSessions);
+      
+          const response = await axios.post(
+            `http://localhost:3000/api/mentors/sessions/${sessionId}/register`,
+            { userId }
+          );
+      
+          if (response.data) {
+            // Update the sessions list to show registered status
+            const newSessions = sessions.map(session => 
+              session._id === sessionId 
+                ? { 
+                    ...session, 
+                    isRegistered: true,
+                    registeredStudents: [...session.registeredStudents, userId],
+                    isRegistering: false
+                  }
+                : session
+            );
+            setSessions(newSessions);
+            alert('Successfully registered for the session!');
+          }
+        } catch (error) {
+          console.error('Error registering for session:', error);
+          // Reset loading state and show error
+          const updatedSessions = sessions.map(s => 
+            s._id === sessionId ? { ...s, isRegistering: false } : s
+          );
+          setSessions(updatedSessions);
+          alert('Failed to register for the session. Please try again.');
+        }
+      };
+
 
 
     const mentors = [
@@ -226,16 +271,32 @@ const Mentorship = () => {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    <button 
-                                        className={`flex-1 py-2 rounded-lg ${
-                                            session.isRegistered 
-                                                ? 'bg-gray-100 text-gray-600 cursor-not-allowed'
-                                                : 'bg-blue-600 text-white hover:bg-blue-700'
-                                        }`}
-                                        disabled={session.isRegistered}
-                                    >
-                                        {session.isRegistered ? 'Already Registered' : 'Register Now'}
-                                    </button>
+                                <button 
+    className={`flex-1 py-2 rounded-lg transition-all duration-200 ${
+        session.isRegistered 
+            ? 'bg-green-100 text-green-600 cursor-not-allowed'
+            : session.isRegistering
+            ? 'bg-blue-400 text-white cursor-wait'
+            : session.registeredStudents.length >= session.maxParticipants
+            ? 'bg-gray-100 text-gray-600 cursor-not-allowed'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
+    }`}
+    onClick={() => handleRegistration(session._id)}
+    disabled={
+        session.isRegistered || 
+        session.isRegistering || 
+        session.registeredStudents.length >= session.maxParticipants
+    }
+>
+    {session.isRegistered 
+        ? 'Already Registered' 
+        : session.isRegistering
+        ? 'Registering...'
+        : session.registeredStudents.length >= session.maxParticipants
+        ? 'Session Full'
+        : 'Register Now'
+    }
+</button>
                                     {mentorDetail?.mentorDetails?.linkedinUrl && (
                                         <a
                                             href={mentorDetail.mentorDetails.linkedinUrl}
