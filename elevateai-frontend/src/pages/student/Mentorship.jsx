@@ -198,7 +198,7 @@ const Mentorship = () => {
             <div className="mt-16 w-full min-h-screen p-6">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold mb-2">Empower Your Journey with Expert Guidance</h1>
+                    <h1 className="text-2xl font-bold mb-2">Connect with Alumni</h1>
                     <p className="text-gray-600">
                         Find mentors to guide you in achieving your career dreams. Filter by company, alumni network, or areas of expertise to start your journey today.
                     </p>

@@ -24,7 +24,7 @@ const Sidebar = () => {
     { name: "AI-Mock Interviews", icon: <FaUserGraduate />, path: "http://localhost:3001/dashboard" },
     { name: "AI Resume Analyzer", icon: <FaFileCode />, path: "/student/resume-analyzer" },
     { name: "Resume Generator", icon: <FaFileAlt />, path: "/student/resume-generator" },
-    { name: "Expert Mentorship", icon: <FaChalkboardTeacher />, path: "/student/mentorship" },
+    { name: "Alumni Mentorship", icon: <FaChalkboardTeacher />, path: "/student/mentorship" },
   ];
 
   return (
