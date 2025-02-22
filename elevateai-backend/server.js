@@ -22,12 +22,16 @@ const userRoutes = require("./routes/userRoutes");
 const internshipRoutes  = require('./routes/internshipRoutes')
 const hackathonRoutes = require('./routes/hackathonRoutes')
 const mentorshipRoutes = require('./routes/mentorshipSessionRoutes')
+const resumeRoutes = require('./routes/resumeRoutes')
 
 // Mount Routes
 app.use("/api/users", userRoutes);
 app.use('/api/internships', internshipRoutes);
 app.use('/api/hackathon',hackathonRoutes)
 app.use('/api/mentors', mentorshipRoutes);
+
+// Add after other route imports
+app.use('/api/resumes', resumeRoutes);
 
 
 // Error Handling Middleware
