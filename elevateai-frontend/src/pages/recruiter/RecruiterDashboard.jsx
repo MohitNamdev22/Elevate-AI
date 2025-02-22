@@ -26,7 +26,7 @@ const RecruiterDashboard = () => {
         if (userData) {
             const parsedUserData = JSON.parse(userData);
             setFullName(parsedUserData?.fullName);
-
+    
             // Fetch jobs by recruiter ID
             fetch(`http://localhost:3000/api/internships/recruiter/${parsedUserData.userId}`)
                 .then(response => response.json())
@@ -35,14 +35,17 @@ const RecruiterDashboard = () => {
                     setTotalJobs(data.length);
                     const totalApplicantsCount = data.reduce((acc, job) => acc + job.applicants.length, 0);
                     setTotalApplicants(totalApplicantsCount);
-                    setAverageApplications(totalApplicantsCount / data.length);
+                    setAverageApplications(data.length ? totalApplicantsCount / data.length : 0);
                 })
                 .catch(error => console.error('Error fetching jobs:', error));
-
+    
             // Fetch applicants for all jobs posted by the recruiter
             fetch(`http://localhost:3000/api/internships/${parsedUserData.userId}/applicants1`)
                 .then(response => response.json())
-                .then(data => setApplicants(data))
+                .then(data => {
+                    // Ensure data is an array
+                    setApplicants(Array.isArray(data) ? data : []);
+                })
                 .catch(error => console.error('Error fetching applicants:', error));
         }
     }, []);
@@ -197,8 +200,7 @@ const RecruiterDashboard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {console.log(applicants)}
-                            {applicants.map((job, index) => (
+                            {applicants?.map((job, index) => (
                                 job.applicants.map((applicant, applicantIndex) => (
                                     <tr key={`${index}-${applicantIndex}`} className="border-t">
                                         <td className="py-4">{applicant.fullName}</td>

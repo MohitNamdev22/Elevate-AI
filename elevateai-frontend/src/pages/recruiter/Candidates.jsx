@@ -43,14 +43,14 @@ const CandidatesAnalytics = () => {
         }
 
         // Send the fetched applicants data to the second API
-        const response2 = await fetch('https://sort-sft4.onrender.com', {
+        const response2 = await fetch('https://sort-sft4.onrender.com/sort', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            candidate: data,
-            jobDescription: 'This job is for web development'
+            candidates: data,
+            job_description: 'This job is for web development'
           })
         });
 
