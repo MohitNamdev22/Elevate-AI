@@ -2,11 +2,11 @@ const axios = require('axios');
 
 async function generateSummary(jobTitle, experience, skills) {
     try {
-        const prompt = `Create a professional resume summary for a ${jobTitle} position.
-        Experience: ${experience}
-        Skills: ${skills.join(', ')}
+        const prompt = `Create 3 different professional resume summaries for a ${jobTitle} position.
+    
+    Please provide 3 different professional summaries (2-3 sentences each) in an array format JSON data. Each summary should highlight different aspects of the experience and skills while maintaining a professional tone. The summaries should be ready to use without any placeholder information.`;
+
         
-        Please provide a concise, professional summary (2-3 sentences) highlighting the experience and skills that would be most relevant for this position.`;
 
         const response = await axios.post(
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
