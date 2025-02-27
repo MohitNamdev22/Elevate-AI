@@ -22,10 +22,16 @@ import MentorDashboard from './pages/mentor/Dashboard'
 import ManageSessions from './pages/mentor/ManageSessions'
 import MentorProfile from './pages/mentor/Profile'
 import ResumeBuilder from './pages/student/ResumeGenerator'
+import ResumeList from './components/ResumeList'
+import ResumeEditor from './components/ResumeEditor';
+import { ResumeInfoProvider } from './contexts/ResumeInfoContext';
+import ResumeDownloadPage from './components/ResumeDownloadPage';
+
 
 
 function App() {
   return (
+    <ResumeInfoProvider>
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -35,8 +41,10 @@ function App() {
         <Route path="/student/roadmaps" element={<Roadmap />} />
         <Route path="/student/opportunities" element={<Opportunities />} />
         <Route path="/student/mentorship" element={<Mentorship />} />
-        <Route path="/student/resume-generator" element={<Resume />} />
-        <Route path="/student/resume-generator/manual-resume" element={<ManualResume />} />
+        <Route path="/student/resume-generator" element={<ResumeList />} />
+        <Route path="/student/resume-generator/edit/:resumeId" element={<ResumeEditor />} />
+          <Route path="/student/resume-generator/resume/:resumeId/download" element={<ResumeDownloadPage />} />
+        {/* <Route path="/student/resume-generator/manual-resume" element={<ManualResume />} /> */}
         <Route path="/student/resume-analyzer" element={<ResumeAnalyzer />} />
         <Route path="/student/profile" element={<StudentProfile />} />
         <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
@@ -54,6 +62,7 @@ function App() {
 
       </Routes>
     </Router>
+    </ResumeInfoProvider>
   )
 }
 
