@@ -31,10 +31,10 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
 
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then(() => console.log("Camera permission granted"))
+      .getUserMedia({ video: true, audio: true })  // Added "audio: true"
+      .then(() => console.log("Camera and microphone permission granted"))
       .catch((error) => {
-        console.error("Camera permission denied:", error);
+        console.error("Camera or microphone permission denied:", error);
         setCameraError(true);
       });
   }, []);
