@@ -15,7 +15,9 @@ import { useEffect, useState } from "react";
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement);
 
 const RecruiterDashboard = () => {
-    const [fullName, setFullName] = useState('User');
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [jobs, setJobs] = useState([]);
     const [totalJobs, setTotalJobs] = useState(0);
     const [totalApplicants, setTotalApplicants] = useState(0);
@@ -23,34 +25,93 @@ const RecruiterDashboard = () => {
     const [applicants, setApplicants] = useState([]);
 
 
+
     useEffect(() => {
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-            const parsedUserData = JSON.parse(userData);
-            setFullName(parsedUserData?.fullName);
-    
-            // Fetch jobs by recruiter ID
-            fetch(`${API_BASE_URL}/api/internships/recruiter/${parsedUserData.userId}`)
-                .then(response => response.json())
-                .then(data => {
-                    setJobs(data);
-                    setTotalJobs(data.length);
-                    const totalApplicantsCount = data.reduce((acc, job) => acc + job.applicants.length, 0);
-                    setTotalApplicants(totalApplicantsCount);
-                    setAverageApplications(data.length ? totalApplicantsCount / data.length : 0);
-                })
-                .catch(error => console.error('Error fetching jobs:', error));
-    
-            // Fetch applicants for all jobs posted by the recruiter
-            fetch(`${API_BASE_URL}/api/internships/${parsedUserData.userId}/applicants1`)
-                .then(response => response.json())
-                .then(data => {
-                    // Ensure data is an array
-                    setApplicants(Array.isArray(data) ? data : []);
-                })
-                .catch(error => console.error('Error fetching applicants:', error));
-        }
+        const fetchData = async () => {
+            try {
+                const userId = localStorage.getItem('userId');
+                
+                // Fetch user data
+                const userResponse = await fetch(`${API_BASE_URL}/api/users/user/${userId}`);
+                const userData = await userResponse.json();
+                setUserData(userData);
+
+                // Fetch jobs by recruiter ID
+                const jobsResponse = await fetch(`${API_BASE_URL}/api/internships/recruiter/${userId}`);
+                const jobsData = await jobsResponse.json();
+                setJobs(jobsData);
+                setTotalJobs(jobsData.length);
+
+                // Calculate stats
+                const totalApplicantsCount = jobsData.reduce((acc, job) => acc + (job.applicants?.length || 0), 0);
+                setTotalApplicants(totalApplicantsCount);
+                setAverageApplications(jobsData.length ? totalApplicantsCount / jobsData.length : 0);
+
+                // Get application statuses for bar chart
+                const applicationStatuses = jobsData.reduce((acc, job) => {
+                    job.applicants?.forEach(applicant => {
+                        acc[applicant.status] = (acc[applicant.status] || 0) + 1;
+                    });
+                    return acc;
+                }, {});
+
+                // Update bar chart data
+                setBarData({
+                    labels: Object.keys(applicationStatuses),
+                    datasets: [{
+                        data: Object.values(applicationStatuses),
+                        backgroundColor: '#3B82F6',
+                        borderRadius: 8,
+                    }]
+                });
+
+                // Get skills distribution for doughnut chart
+                const skillsDistribution = {};
+                jobsData.forEach(job => {
+                    const category = job.category;
+                    skillsDistribution[category] = (skillsDistribution[category] || 0) + 1;
+                });
+
+                // Update doughnut chart data
+                setDoughnutData({
+                    labels: Object.keys(skillsDistribution),
+                    datasets: [{
+                        data: Object.values(skillsDistribution),
+                        backgroundColor: [
+                            '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#6366F1'
+                        ],
+                        borderWidth: 0
+                    }]
+                });
+
+            } catch (err) {
+                setError(err.message);
+                console.error('Error fetching data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
+
+    const [barData, setBarData] = useState({
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: '#3B82F6',
+            borderRadius: 8,
+        }]
+    });
+
+    const [doughnutData, setDoughnutData] = useState({
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: [],
+            borderWidth: 0
+        }]
+    });
 
     const fetchApplicants = (jobId) => {
         fetch(`${API_BASE_URL}/api/internships/${jobId}/applicants`)
@@ -61,22 +122,6 @@ const RecruiterDashboard = () => {
 
   
   // Sample data for charts
-  const doughnutData = {
-    datasets: [{
-      data: [70, 30],
-      backgroundColor: ['#3B82F6', '#EFF6FF'],
-      borderWidth: 0
-    }]
-  };
-
-  const barData = {
-    labels: ['Applied', 'Shortlisted', 'Interview', 'Hired'],
-    datasets: [{
-      data: [40, 25, 15, 10],
-      backgroundColor: '#3B82F6',
-      borderRadius: 8,
-    }]
-  };
 
   const barOptions = {
     scales: {
@@ -91,6 +136,21 @@ const RecruiterDashboard = () => {
     }
   };
 
+
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>;
+}
+
+if (error) {
+    return <div className="flex justify-center items-center min-h-screen text-red-500">
+        {error}
+    </div>;
+}
+
+
     return (
         <div className="flex bg-[#F8FAFC]">
 
@@ -98,9 +158,9 @@ const RecruiterDashboard = () => {
             <div className=" mt-16 p-8 w-full min-h-screen">
                 {/* Welcome Section */}
                 <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-2xl font-semibold">Hello, {fullName}!</h1>
-                        <p className="text-gray-600">Find your ideal talent today</p>
+                <div>
+                        <h1 className="text-2xl font-semibold">Hello, {userData?.fullName}!</h1>
+                        <p className="text-gray-600">{userData?.recruiterDetails?.jobTitle} at {userData?.recruiterDetails?.companyName}</p>
                     </div>
                     <div className="space-x-3">
         <Link to="/recruiter/opportunity-listing/jobpost">
@@ -161,7 +221,7 @@ const RecruiterDashboard = () => {
                         </div>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <h3 className="font-semibold mb-4">Skills Distribution</h3>
+                        <h3 className="font-semibold mb-4">Job Categories Distribution</h3>
                         <div className="h-64 flex justify-center">
                             <Doughnut data={doughnutData} />
                         </div>
