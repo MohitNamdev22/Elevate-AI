@@ -219,20 +219,24 @@ class UserController {
     }
   }
 
+
   async getTopCategories(req, res) {
     try {
       const { studentId, categories } = req.body;
 
       // Fetch student details using student ID
       const student = await User.findById(studentId).select('studentDetails');
+      console.log('student info',student);
       if (!student || !student.studentDetails) {
         return res.status(404).json({ message: 'Student not found' });
       }
 
       const studentProfile = student.studentDetails;
 
+
       // Get top categories based on the student's profile
       const topCategories = await getTopCategories(studentProfile, categories);
+      console.log(topCategories);
 
       res.status(200).json({ topCategories });
     } catch (error) {
