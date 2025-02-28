@@ -1,26 +1,77 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaExternalLinkAlt } from 'react-icons/fa';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 const RecruiterProfile = () => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await fetch(`${API_BASE_URL}/api/users/user/${userId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch profile data');
+        }
+
+        setUserData(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-500">
+        {error}
+      </div>
+    );
+  }
+
+
   return (
     <div className="flex bg-[#F8FAFC]">
       <Sidebar />
       <div className="mt-16 p-8 w-full min-h-screen">
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-8">
+       {/* Header Section */}
+       <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-6">
-            <img 
-              src="/api/placeholder/80/80" 
-              alt="Sarah Wilson" 
-              className="w-20 h-20 rounded-full object-cover"
-            />
+            {userData?.profileImage ? (
+              <img 
+                src={userData.profileImage} 
+                alt={userData.fullName} 
+                className="w-20 h-20 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
+                <span className="text-2xl font-semibold text-blue-600">
+                  {userData?.fullName?.[0]}
+                </span>
+              </div>
+            )}
             <div>
-              <h1 className="text-2xl font-semibold">Sarah Wilson</h1>
-              <p className="text-gray-600">Senior Technical Recruiter</p>
+              <h1 className="text-2xl font-semibold">{userData?.fullName}</h1>
+              <p className="text-gray-600">{userData?.recruiterDetails?.jobTitle}</p>
               <div className="flex items-center gap-1 text-gray-600 text-sm">
-                <img src="/api/placeholder/16/16" alt="company" className="w-4 h-4" />
-                Tech Solutions Inc
+                {userData?.recruiterDetails?.companyName}
               </div>
             </div>
           </div>
@@ -49,55 +100,49 @@ const RecruiterProfile = () => {
           {/* Left Column */}
           <div className="col-span-2 space-y-6">
             {/* Professional Summary */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Professional Summary</h2>
-              <p className="text-gray-600">
-                Senior Technical Recruiter with 8+ years of experience in talent acquisition for technology
-                companies. Specialized in hiring software engineers, product managers, and technical
-                leaders. Passionate about building diverse and high-performing teams.
-              </p>
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FaPhone className="w-4 h-4" />
-                  <span>+1 (555) 123-456</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FaEnvelope className="w-4 h-4" />
-                  <span>sarah.wilson@techsolutions.co</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FaMapMarkerAlt className="w-4 h-4" />
-                  <span>San Francisco, CA</span>
-                </div>
-              </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+          <h2 className="text-lg font-semibold mb-4">Professional Summary</h2>
+          <p className="text-gray-600">
+            {userData?.recruiterDetails?.professionalSummary || 'No summary available'}
+          </p>
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center gap-2 text-gray-600">
+              <FaPhone className="w-4 h-4" />
+              <span>{userData?.phoneNumber}</span>
             </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <FaEnvelope className="w-4 h-4" />
+              <span>{userData?.email}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <FaMapMarkerAlt className="w-4 h-4" />
+              <span>{userData?.location}</span>
+            </div>
+          </div>
+        </div>
 
             {/* Recruiting Preferences */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Recruiting Preferences</h2>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-gray-600 mb-2">Industry Focus</h3>
-                  <div className="flex gap-2">
-                    {['Software Development', 'Product Management', 'Data Science', 'DevOps'].map((item) => (
-                      <span key={item} className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-gray-600 mb-2">Work Model</h3>
-                  <div className="flex gap-2">
-                    {['Remote', 'Hybrid', 'On-site'].map((item) => (
-                      <span key={item} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+          <h2 className="text-lg font-semibold mb-4">Recruiting Preferences</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-gray-600 mb-2">Industry Focus</h3>
+              <div className="flex gap-2">
+                {userData?.recruiterDetails?.industryFocus?.map((industry) => (
+                  <span key={industry} className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm">
+                    {industry}
+                  </span>
+                ))}
               </div>
             </div>
+            <div>
+              <h3 className="text-gray-600 mb-2">Work Model</h3>
+              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                {userData?.recruiterDetails?.workModel}
+              </span>
+            </div>
+          </div>
+        </div>
 
             {/* Recent Activity */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -121,32 +166,54 @@ const RecruiterProfile = () => {
           {/* Right Column */}
           <div className="space-y-6">
             {/* Connected Accounts */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Connected Accounts</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FaLinkedin className="text-blue-600" />
-                    <span>LinkedIn</span>
-                  </div>
-                  <FaExternalLinkAlt className="text-gray-400" />
+             {/* Connected Accounts */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
+          <h2 className="text-lg font-semibold mb-4">Connected Accounts</h2>
+          <div className="space-y-4">
+            {userData?.recruiterDetails?.linkedinUrl && (
+              <a 
+                href={userData.recruiterDetails.linkedinUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between hover:bg-gray-50 p-2 rounded"
+              >
+                <div className="flex items-center gap-2">
+                  <FaLinkedin className="text-blue-600" />
+                  <span>LinkedIn</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FaGithub />
-                    <span>GitHub</span>
-                  </div>
-                  <FaExternalLinkAlt className="text-gray-400" />
+                <FaExternalLinkAlt className="text-gray-400" />
+              </a>
+            )}
+            {userData?.recruiterDetails?.githubUrl && (
+              <a 
+                href={`https://github.com/${userData.recruiterDetails.githubUrl}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between hover:bg-gray-50 p-2 rounded"
+              >
+                <div className="flex items-center gap-2">
+                  <FaGithub />
+                  <span>GitHub</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FaTwitter className="text-blue-400" />
-                    <span>Twitter</span>
-                  </div>
-                  <FaExternalLinkAlt className="text-gray-400" />
+                <FaExternalLinkAlt className="text-gray-400" />
+              </a>
+            )}
+            {userData?.recruiterDetails?.twitterUrl && (
+              <a 
+                href={`https://twitter.com/${userData.recruiterDetails.twitterUrl}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between hover:bg-gray-50 p-2 rounded"
+              >
+                <div className="flex items-center gap-2">
+                  <FaTwitter className="text-blue-400" />
+                  <span>Twitter</span>
                 </div>
-              </div>
-            </div>
+                <FaExternalLinkAlt className="text-gray-400" />
+              </a>
+            )}
+          </div>
+        </div>
 
             {/* Quick Tools */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
