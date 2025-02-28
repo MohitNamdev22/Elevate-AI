@@ -13,6 +13,8 @@ import {
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Sidebar from './Sidebar';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
+
 
 
 
@@ -27,7 +29,7 @@ const ManageSessions = () => {
 
   const fetchStudentDetails = async (studentId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/users/user/${studentId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/users/user/${studentId}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching student details for ${studentId}:`, error);
@@ -43,7 +45,7 @@ const ManageSessions = () => {
         return;
       }
   
-      const response = await axios.post('http://localhost:3000/api/mentors/created-sessions', {
+      const response = await axios.post(`${API_BASE_URL}/api/mentors/created-sessions`, {
         mentorId: mentorId
       });
   
@@ -127,7 +129,7 @@ const ManageSessions = () => {
         maxParticipants: newSlot.maxParticipants
       };
   
-      const response = await axios.post('http://localhost:3000/api/mentors/sessions', sessionData);
+      const response = await axios.post(`${API_BASE_URL}/api/mentors/sessions`, sessionData);
   
       if (response.data) {
         // Update local state with new slot

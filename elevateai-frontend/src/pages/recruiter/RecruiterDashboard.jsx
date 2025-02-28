@@ -9,6 +9,8 @@ import {
 import { useEffect, useState } from "react";
   import { Doughnut, Bar } from 'react-chartjs-2';
   import { Link } from "react-router-dom";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
+
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement);
 
@@ -28,7 +30,7 @@ const RecruiterDashboard = () => {
             setFullName(parsedUserData?.fullName);
     
             // Fetch jobs by recruiter ID
-            fetch(`http://localhost:3000/api/internships/recruiter/${parsedUserData.userId}`)
+            fetch(`${API_BASE_URL}/api/internships/recruiter/${parsedUserData.userId}`)
                 .then(response => response.json())
                 .then(data => {
                     setJobs(data);
@@ -40,7 +42,7 @@ const RecruiterDashboard = () => {
                 .catch(error => console.error('Error fetching jobs:', error));
     
             // Fetch applicants for all jobs posted by the recruiter
-            fetch(`http://localhost:3000/api/internships/${parsedUserData.userId}/applicants1`)
+            fetch(`${API_BASE_URL}/api/internships/${parsedUserData.userId}/applicants1`)
                 .then(response => response.json())
                 .then(data => {
                     // Ensure data is an array
@@ -51,7 +53,7 @@ const RecruiterDashboard = () => {
     }, []);
 
     const fetchApplicants = (jobId) => {
-        fetch(`http://localhost:3000/api/internships/${jobId}/applicants`)
+        fetch(`${API_BASE_URL}/api/internships/${jobId}/applicants`)
             .then(response => response.json())
             .then(data => setApplicants(data))
             .catch(error => console.error('Error fetching applicants:', error));

@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { FaSearch, FaRegBookmark, FaMapMarkerAlt, FaRegClock, FaMoneyBillWave, FaLink } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
+
 
 const Opportunities = () => {
   const [hackathons, setHackathons] = useState([]);
@@ -42,8 +44,8 @@ const Opportunities = () => {
     const fetchData = async () => {
       try {
         const [hackResponse, internResponse] = await Promise.all([
-          fetch('http://localhost:3000/api/hackathon'),
-          fetch('http://localhost:3000/api/internships')
+          fetch(`${API_BASE_URL}/api/hackathon`),
+          fetch(`${API_BASE_URL}/api/internships`)
         ]);
         
         const hackData = await hackResponse.json();

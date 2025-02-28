@@ -1,12 +1,34 @@
 import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import { FaCheckCircle, FaClock, FaGithub, FaCode, FaBriefcase } from "react-icons/fa";
+import { Radar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+} from 'chart.js';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
+
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
 
 const GitHubActivity = () => {
   const [commits, setCommits] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  
   useEffect(() => {
     const fetchCommits = async () => {
       try {
@@ -15,7 +37,7 @@ const GitHubActivity = () => {
           throw new Error('User ID not found');
         }
 
-        const response = await fetch(`http://localhost:3000/api/users/${userId}/total-commits`);
+        const response = await fetch(`${API_BASE_URL}/api/users/${userId}/total-commits`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -66,7 +88,7 @@ const LeetCodeProgress = () => {
           throw new Error('User ID not found');
         }
 
-        const response = await fetch(`http://localhost:3000/api/users/${userId}/leetcode-stats`);
+        const response = await fetch(`${API_BASE_URL}/api/users/${userId}/leetcode-stats`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -147,7 +169,7 @@ const RecommendedJobs = () => {
         // Add setTimeout to delay the fetch
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        const response = await fetch('http://localhost:3000/api/users/top-categories-and-jobs', {
+        const response = await fetch(`${API_BASE_URL}/api/users/top-categories-and-jobs`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -252,7 +274,7 @@ const AllJobs = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/internships/');
+        const response = await fetch(`${API_BASE_URL}/api/internships/`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -281,7 +303,7 @@ const AllJobs = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/internships/apply', {
+      const response = await fetch(`${API_BASE_URL}/api/internships/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -344,33 +366,151 @@ const AllJobs = () => {
 };
 
 const StudentDashboard = () => {
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await fetch(`${API_BASE_URL}/api/users/user/${userId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch user data');
+        }
+
+        setUserData(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching user data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const WelcomeSection = () =>  (
+    
+    <div className="flex justify-between items-start mb-6">
+      <div>
+        <h2 className="text-2xl font-semibold">
+          Welcome back, {userData?.fullName || 'Student'}
+        </h2>
+        <p className="text-gray-600">Here's what's next on your journey</p>
+      </div>
+    </div>
+  );
+
+  const SkillsSection = () => {
+
+    
+    const skills = userData?.studentDetails?.skills || [];
+    const skillLevels = skills.map(() => Math.floor(Math.random() * 40) + 60); // Random values between 60-100 for demo
+  
+    const chartData = {
+      labels: skills,
+      datasets: [
+        {
+          label: 'Skill Proficiency',
+          data: skillLevels,
+          backgroundColor: 'rgba(59, 130, 246, 0.2)', // blue-500 with opacity
+          borderColor: 'rgba(59, 130, 246, 1)', // blue-500
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(59, 130, 246, 1)',
+        }
+      ]
+    };
+  
+    const chartOptions = {
+      scales: {
+        r: {
+          angleLines: {
+            color: 'rgba(0, 0, 0, 0.1)'
+          },
+          grid: {
+            color: 'rgba(0, 0, 0, 0.1)'
+          },
+          pointLabels: {
+            font: {
+              size: 12
+            }
+          },
+          suggestedMin: 0,
+          suggestedMax: 100
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    };
+  
+    return (
+      <div>
+    <div className="flex justify-between items-start -mt-20">
+      <div className="w-[400px]">
+        <div className="aspect-square">
+          <Radar data={chartData} options={chartOptions} />
+        </div>
+      </div>
+    </div>
+  </div>
+    );
+}
+
+  
   return (
     <div className="flex bg-[#F8FAFC]">
 
         <Sidebar/>
       <div className=" mt-16 p-8 w-full min-h-screen">
-        {/* Welcome Section */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold">Welcome back, Mohit</h2>
-          <p className="text-gray-600">Here's what’s next on your journey</p>
-        </div>
+      {loading ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : error ? (
+          <div className="text-red-500 text-center p-4">{error}</div>
+        ) : (
+          <>
+            <WelcomeSection userData={userData} />
+          
+        
 
         {/* Learning Progress */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold">Your Learning Progress</h3>
-          <p className="text-gray-600">You're making great progress! Keep it up.</p>
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center text-green-600">
-              <FaCheckCircle className="mr-2" /> Complete React Fundamentals - Completed
-            </div>
-            <div className="flex items-center text-blue-600">
-              <FaClock className="mr-2" /> Advanced Node.js Concepts - In Progress
-            </div>
-            <div className="flex items-center text-gray-600">
-              <FaClock className="mr-2" /> Database Design Pattern - Upcoming
-            </div>
-          </div>
+  <h3 className="text-lg font-semibold">Your Learning Progress</h3>
+  <div className="flex justify-between items-start gap-6 mt-4">
+    {/* Left side: Learning Progress */}
+    <div className="flex-1">
+      <p className="text-gray-600">You're making great progress! Keep it up.</p>
+      <div className="mt-4 space-y-2">
+        <div className="flex items-center text-green-600">
+          <FaCheckCircle className="mr-2" /> Complete React Fundamentals - Completed
         </div>
+        <div className="flex items-center text-blue-600">
+          <FaClock className="mr-2" /> Advanced Node.js Concepts - In Progress
+        </div>
+        <div className="flex items-center text-gray-600">
+          <FaClock className="mr-2" /> Database Design Pattern - Upcoming
+        </div>
+      </div>
+    </div>
+    
+    {/* Right side: Skills Chart */}
+    <div className="w-1/2">
+      <SkillsSection userData={userData} />
+    </div>
+  </div>
+</div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-6 mt-6">
@@ -448,6 +588,8 @@ const StudentDashboard = () => {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

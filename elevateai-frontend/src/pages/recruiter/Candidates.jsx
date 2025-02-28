@@ -10,6 +10,7 @@ import {
   FaShare
 } from 'react-icons/fa';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 
 const CandidatesAnalytics = () => {
   // Enhanced statistics data
@@ -35,7 +36,7 @@ const CandidatesAnalytics = () => {
         }
 
         // Fetch applicants data from the first API
-        const response = await fetch(`http://localhost:3000/api/internships/${userId}/applicants1`);
+        const response = await fetch(`${API_BASE_URL}/api/internships/${userId}/applicants1`);
         const data = await response.json();
 
         if (!response.ok) {

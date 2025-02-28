@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   FaTachometerAlt, 
@@ -13,9 +13,26 @@ import {
   FaFileCode
 } from "react-icons/fa";
 import elevateaiLogo from '../../assets/elevateai-logo.svg';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 
 const Sidebar = () => {
   const location = useLocation();
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await fetch(`${API_BASE_URL}/api/users/user/${userId}`);
+        const data = await response.json();
+        setUserData(data);
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const menuItems = [
     { name: "Dashboard", icon: <FaHome />, path: "/student/dashboard" },
@@ -45,8 +62,16 @@ const Sidebar = () => {
             className="px-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <FaBell className="text-gray-600 text-xl cursor-pointer hover:text-blue-600" />
-          <Link to="/student/profile">
-          <FaUserCircle className="text-gray-600 text-2xl cursor-pointer hover:text-blue-600" />
+          <Link to="/student/profile" className="flex items-center">
+            {userData?.profileImage ? (
+              <img 
+                src={userData.profileImage}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <FaUserCircle className="text-gray-600 text-2xl cursor-pointer hover:text-blue-600" />
+            )}
           </Link>
         </div>
       </div>

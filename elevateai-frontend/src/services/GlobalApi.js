@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 
 if (!import.meta.env.VITE_GOOGLE_API_KEY) {
   throw new Error('Missing VITE_GOOGLE_API_KEY environment variable');
@@ -10,7 +11,7 @@ if (!import.meta.env.VITE_GOOGLE_API_KEY) {
 export default {
     // Resume Related APIs
     createResume: (data) =>
-      fetch('http://localhost:3000/api/resumes', {
+      fetch(`${API_BASE_URL}/api/resumes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -18,19 +19,19 @@ export default {
       
   
     getResumes: (userId) =>
-      fetch(`http://localhost:3000/api/resumes?userId=${userId}`, {
+      fetch(`${API_BASE_URL}/api/resumes?userId=${userId}`, {
         headers: { 'Content-Type': 'application/json' }
       }).then(res => res.json()),
   
     updateResume: (id, data) =>
-      fetch(`http://localhost:3000/api/resumes/${id}`, {
+      fetch(`${API_BASE_URL}/api/resumes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }).then(res => res.json()),
   
     generateSummary: (data) =>
-      fetch('http://localhost:3000/api/resumes/generate-summary', {
+      fetch(`${API_BASE_URL}/api/resumes/generate-summary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

@@ -4,6 +4,9 @@ import { SiLeetcode, SiCodeforces } from 'react-icons/si';
 import elevateAILogo from '../assets/elevateai-logo.svg';
 import { Link, useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
+
+
 const Signup = () => {
   // const [showPassword, setShowPassword] = useState(false);
   // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -168,7 +171,7 @@ const handleAddExperience = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/addUser', {
+      const response = await fetch(`${API_BASE_URL}/api/users/addUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

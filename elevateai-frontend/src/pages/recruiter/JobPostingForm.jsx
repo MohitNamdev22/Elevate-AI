@@ -52,7 +52,7 @@ const JobPostingForm = () => {
   const handleSubmit = async () => {
     console.log('Form Submitted:', formData);
     try {
-      const response = await fetch('http://localhost:3000/api/internships/post-job', {
+      const response = await fetch(`${API_BASE_URL}/api/internships/post-job`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

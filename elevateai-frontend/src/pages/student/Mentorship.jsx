@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaSearch, FaMapMarkerAlt, FaClock, FaLinkedin, FaGithub, FaUsers, FaCalendar } from 'react-icons/fa';
 import axios from 'axios';
 import Sidebar from './Sidebar';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
+
 
 const Mentorship = () => {
     const [sessions, setSessions] = useState([]);
@@ -15,7 +17,7 @@ const Mentorship = () => {
 
     const fetchSessions = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/api/mentors/available-sessions');
+            const response = await axios.get(`${API_BASE_URL}/api/mentors/available-sessions`);
             setSessions(response.data);
             
             // Fetch mentor details for each unique mentor
@@ -40,7 +42,7 @@ const Mentorship = () => {
 
     const fetchMentorDetails = async (mentorId) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/users/user/${mentorId}`);
+            const response = await axios.get(`${API_BASE_URL}/api/users/user/${mentorId}`);
             return response.data;
         } catch (error) {
             console.error(`Error fetching mentor details for ${mentorId}:`, error);
@@ -63,7 +65,7 @@ const Mentorship = () => {
           setSessions(updatedSessions);
       
           const response = await axios.post(
-            `http://localhost:3000/api/mentors/sessions/${sessionId}/register`,
+            `${API_BASE_URL}/api/mentors/sessions/${sessionId}/register`,
             { userId }
           );
       
