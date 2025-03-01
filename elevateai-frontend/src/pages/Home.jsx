@@ -65,10 +65,10 @@ const HeroSection = () => {
                     </nav>
 
                     <div className="flex items-center space-x-4">
-                    <Link to="http://localhost:3001/sign-in">
+                    <Link to="https://elevate-ai-h2k7.vercel.app/sign-in">
                         <button className="text-gray-600">Login</button>
                         </Link>
-                        <Link to="http://localhost:3001/sign-up">
+                        <Link to="https://elevate-ai-h2k7.vercel.app/sign-up">
                         <button className="bg-blue-50 text-blue-600 px-4 border-blue-600 border py-1 rounded-2xl">
                             Register Now
                         </button>

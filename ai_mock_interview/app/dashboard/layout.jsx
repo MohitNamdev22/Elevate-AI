@@ -14,9 +14,9 @@ function DashboardLayout({ children }) {
   }
 
   const isActivePath = (itemPath) => {
-    if (itemPath.includes('localhost:5173')) {
+    if (itemPath.includes('elevate-ai-xi.vercel.app')) {
       // Remove localhost:5173 from the path for comparison
-      const cleanPath = itemPath.replace('http://localhost:5173', '');
+      const cleanPath = itemPath.replace('https://elevate-ai-xi.vercel.app', '');
       return window.location.pathname === cleanPath;
     }
     // For AI-Mock Interviews path ("/dashboard")

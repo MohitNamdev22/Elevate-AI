@@ -373,6 +373,25 @@ const StudentDashboard = () => {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const email = new URLSearchParams(window.location.search).get("email");
+      if (email) {
+        fetch(`https://elevate-ai.onrender.com/api/users/registeredUser/${email}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.userId) {
+              localStorage.setItem("userId", data.userId);
+            } else {
+              // Redirect to the signup onboarding page since userId is null
+              window.location.replace("/signup");
+            }
+          })
+          .catch((err) => console.error("Error fetching registered user:", err));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchUserData = async () => {
       try {
         const userId = localStorage.getItem('userId');
