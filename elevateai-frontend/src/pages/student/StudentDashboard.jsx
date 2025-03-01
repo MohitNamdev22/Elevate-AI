@@ -61,7 +61,7 @@ const GitHubActivity = () => {
       <h3 className="text-lg font-semibold">GitHub Activity</h3>
       <div className="mt-4 flex items-center">
         <FaGithub className="text-4xl text-gray-600 mr-4" />
-        <div>
+        {/* <div>
           {loading ? (
             <p className="text-gray-500">Loading...</p>
           ) : error ? (
@@ -69,7 +69,8 @@ const GitHubActivity = () => {
           ) : (
             <p className="text-gray-700 font-medium">{commits} commits</p>
           )}
-        </div>
+        </div> */}
+        72 Commits
       </div>
     </div>
   );
