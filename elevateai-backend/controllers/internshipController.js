@@ -52,6 +52,7 @@ class InternshipController {
                 title: jobTitle,
                 company: companyName, // Assuming jobDescription is used as company name
                 active: true,
+                description: jobDescription,
                 category: requiredSkills, // Only adding one category as a string
                 link: "No link", // Default value as per the model
                 location: workLocation || "Online",

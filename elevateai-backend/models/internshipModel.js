@@ -6,6 +6,7 @@ const InternshipSchema = new mongoose.Schema({
     active: { type: Boolean, default: false },  // true hi dalna hai
     category: { type: String, required: true },  //category
     duration: { type: String, default: "N/A" },    // nhi dalni
+    description:{type:String, default: "N/A"}, //description
     last_updated: { type: Date, default: Date.now },  
     link: { type: String, default: "No link" },  // ghar ki link dalegi
     location: { type: String, default: "Online" }, //worklocation

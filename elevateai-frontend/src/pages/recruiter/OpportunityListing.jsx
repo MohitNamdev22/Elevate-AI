@@ -198,7 +198,7 @@ const OpportunityListings = () => {
                   <td className="p-4">
                     <div>
                       <h4 className="font-medium">{job.title}</h4>
-                      <p className="text-sm text-gray-600">{job.duration}</p>
+                      <p className="text-sm text-gray-600">{job.description}</p>
                     </div>
                   </td>
                   <td className="p-4">
