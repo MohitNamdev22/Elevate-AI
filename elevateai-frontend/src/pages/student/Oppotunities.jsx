@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { FaSearch, FaRegBookmark, FaMapMarkerAlt, FaRegClock, FaMoneyBillWave, FaLink } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 
 
@@ -38,6 +40,112 @@ const Opportunities = () => {
       opacity: 1,
       transition: { duration: 0.4 }
     }
+  };
+
+  
+  const handleApply = async (jobId) => {
+    try {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        toast.error('Please login to apply');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/internships/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          jobId
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to apply');
+      }
+
+      toast.success('Successfully applied for the position!');
+      
+      // Update the local state to reflect the application
+      setInternships(prevInternships => 
+        prevInternships.map(intern => 
+          intern._id === jobId 
+            ? { ...intern, applicants: [...(intern.applicants || []), userId] }
+            : intern
+        )
+      );
+
+    } catch (error) {
+      toast.error(error.message || 'Error applying for the position');
+      console.error('Error applying:', error);
+    }
+  };
+
+  const InternshipCard = ({ intern }) => {
+    const hasApplied = intern.applicants?.includes(localStorage.getItem('userId'));
+
+    return (
+      <motion.div
+        variants={itemVariants}
+        className="bg-white p-6 rounded-lg border border-gray-200 flex justify-between items-center"
+      >
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold mb-2">{intern.title}</h3>
+          <div className="flex items-center gap-4 mb-4">
+            <span className="flex items-center text-sm text-gray-600">
+              <FaMapMarkerAlt className="mr-1" />
+              {intern.location}
+            </span>
+            <span className="flex items-center text-sm text-gray-600">
+              <FaRegClock className="mr-1" />
+              {intern.posted_time}
+            </span>
+            {intern.stipend !== 'N/A' && (
+              <span className="flex items-center text-sm text-green-600">
+                <FaMoneyBillWave className="mr-1" />
+                {intern.stipend}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              {intern.category?.replace('-', ' ') || 'General'}
+            </span>
+            {intern.source === 'manual' && (
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                Direct Application
+              </span>
+            )}
+          </div>
+        </div>
+        {intern.source === 'manual' ? (
+          <button
+            onClick={() => handleApply(intern._id)}
+            disabled={hasApplied}
+            className={`px-6 py-2 rounded-lg ml-4 ${
+              hasApplied 
+                ? 'bg-gray-100 text-gray-600 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            {hasApplied ? 'Applied' : 'Apply'}
+          </button>
+        ) : (
+          <a
+            href={intern.link}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 ml-4"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Apply on {intern.source}
+          </a>
+        )}
+      </motion.div>
+    );
   };
 
   useEffect(() => {
@@ -193,48 +301,11 @@ const getRandomHackathonImage = () => {
 
         {/* Internships Section */}
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <div className="grid grid-cols-1 gap-4">
-            {filteredInternships.slice(0, visibleInternships).map((intern) => (
-              <motion.div
-                key={intern._id}
-                variants={itemVariants}
-                className="bg-white p-6 rounded-lg border border-gray-200 flex justify-between items-center"
-              >
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-2">{intern.title}</h3>
-                  <div className="flex items-center gap-4 mb-4">
-                    <span className="flex items-center text-sm text-gray-600">
-                      <FaMapMarkerAlt className="mr-1" />
-                      {intern.location}
-                    </span>
-                    <span className="flex items-center text-sm text-gray-600">
-                      <FaRegClock className="mr-1" />
-                      {intern.posted_time}
-                    </span>
-                    {intern.stipend !== 'N/A' && (
-                      <span className="flex items-center text-sm text-green-600">
-                        <FaMoneyBillWave className="mr-1" />
-                        {intern.stipend}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      {intern.category?.replace('-', ' ') || 'General'}
-                    </span>
-                  </div>
-                </div>
-                <a
-                  href={intern.link}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 ml-4"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Apply
-                </a>
-              </motion.div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-4">
+        {filteredInternships.slice(0, visibleInternships).map((intern) => (
+          <InternshipCard key={intern._id} intern={intern} />
+        ))}
+      </div>
           {visibleInternships < filteredInternships.length && (
             <button
               onClick={() => setVisibleInternships(prev => prev + 6)}

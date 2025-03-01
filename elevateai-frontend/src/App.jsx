@@ -26,6 +26,8 @@ import ResumeList from './components/ResumeList'
 import ResumeEditor from './components/ResumeEditor';
 import { ResumeInfoProvider } from './contexts/ResumeInfoContext';
 import ResumeDownloadPage from './components/ResumeDownloadPage';
+import {ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -59,9 +61,10 @@ function App() {
         <Route path="/mentor/manage-sessions" element={<ManageSessions />} />
         <Route path="/mentor/profile" element={<MentorProfile />} />
         <Route path="/student/resumegenerator" element={<ResumeBuilder />} />
-
       </Routes>
     </Router>
+    <ToastContainer />
+
     </ResumeInfoProvider>
   )
 }

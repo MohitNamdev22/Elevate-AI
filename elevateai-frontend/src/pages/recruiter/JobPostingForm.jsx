@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from "./Sidebar";
 import {useNavigate} from 'react-router-dom'
+import { toast } from 'react-toastify';
+
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 
 const JobPostingForm = () => {
   const navigate = useNavigate();
@@ -63,6 +67,8 @@ const JobPostingForm = () => {
       if (response.ok) {
         const result = await response.json();
         console.log('Job posted successfully:', result);
+        toast.success('Job posted successfully:', result.message);
+        
         navigate('/recruiter/dashboard')
         // Reset form or navigate to another page
       } else {
