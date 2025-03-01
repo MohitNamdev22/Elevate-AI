@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Link, useLocation, BrowserRouter as Router } from "react-router-dom";
-import { FaHome, FaMap, FaBriefcase, FaUserGraduate, FaFileAlt, FaChalkboardTeacher, FaBell, FaUserCircle } from "react-icons/fa";
+import { FaHome, FaMap, FaBriefcase, FaFileCode, FaUserGraduate, FaFileAlt, FaChalkboardTeacher, FaBell, FaUserCircle } from "react-icons/fa";
 import elevateaiLogo from "../../public/elevate-ai.png";
 
 function DashboardLayout({ children }) {
