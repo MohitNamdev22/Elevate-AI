@@ -382,7 +382,6 @@ const StudentDashboard = () => {
             if (data.userId) {
               localStorage.setItem("userId", data.userId);
             } else {
-              // Redirect to the signup onboarding page since userId is null
               window.location.replace("/signup");
             }
           })
@@ -401,7 +400,6 @@ const StudentDashboard = () => {
         if (!response.ok) {
           throw new Error(data.message || 'Failed to fetch user data');
         }
-
         setUserData(data);
       } catch (err) {
         setError(err.message);
@@ -410,9 +408,30 @@ const StudentDashboard = () => {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    if (userData && userData.role) {
+      if (userData.role === 'Recruiter') {
+        window.location.replace('/recruiter/dashboard');
+      } else if (userData.role === 'Mentor') {
+        window.location.replace('/mentor/dashboard');
+      }
+    }
+  }, [userData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center p-4">{error}</div>;
+  }
 
   const WelcomeSection = () =>  (
     

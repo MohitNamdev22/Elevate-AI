@@ -165,6 +165,8 @@ const handleAddExperience = () => {
     console.log('handle submit')
     console.log(formData)
     e.preventDefault();
+    setLoading(true);
+  setError('');
     // if (!validateForm()) return;
 
     setLoading(true);
@@ -208,7 +210,7 @@ const handleAddExperience = () => {
       };
   
       localStorage.setItem('userData', JSON.stringify(userData));
-      localStorage.setItem('userId', data.userId);
+    localStorage.setItem('userId', data.userId);
   
 
       if(formData.role === 'Student'){
