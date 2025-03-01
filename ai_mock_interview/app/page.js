@@ -1,10 +1,42 @@
+"use client"
 import Image from "next/image";
 import { Button } from "@/components/ui/button"
+import { UserButton, useAuth, useUser } from '@clerk/nextjs'
+import React, { useEffect } from 'react'
 import Header from "./dashboard/_components/Header";
 import Link from "next/link";
 
 
 export default function Home() {
+  const { isSignedIn } = useAuth();
+  const { user, isLoaded } = useUser();
+  
+
+  useEffect(() => {
+    console.log(isSignedIn, user, isLoaded);
+    // Check if user is authenticated and has email
+    if (isLoaded && isSignedIn && user?.primaryEmailAddress?.emailAddress) {
+      const userEmail = user.primaryEmailAddress.emailAddress;
+      localStorage.setItem('userEmail', userEmail);
+      const encodedEmail = encodeURIComponent(userEmail);
+      
+      // Redirect to student dashboard
+      window.location.replace(`https://elevate-ai-xi.vercel.app/student/dashboard?email=${encodedEmail}`);
+    } else if (isLoaded && !isSignedIn) {
+      // If not signed in, redirect to sign-in page
+      window.location.replace('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, user]);
+
+  
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
    <div>
           <div className="main-container relative bg-black w-screen h-screen overflow-hidden">

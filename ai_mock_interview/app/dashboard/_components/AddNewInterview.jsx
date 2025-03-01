@@ -28,20 +28,20 @@ function AddNewInterview() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
 
-  useEffect(() => {
-    if (isLoaded && user?.primaryEmailAddress?.emailAddress) {
-      const userEmail = user.primaryEmailAddress.emailAddress;
+  // useEffect(() => {
+  //   if (isLoaded && user?.primaryEmailAddress?.emailAddress) {
+  //     const userEmail = user.primaryEmailAddress.emailAddress;
       
-      // Store email in localStorage
-      localStorage.setItem('userEmail', userEmail);
+  //     // Store email in localStorage
+  //     localStorage.setItem('userEmail', userEmail);
       
-      // Encode email for URL safety
-      const encodedEmail = encodeURIComponent(userEmail);
+  //     // Encode email for URL safety
+  //     const encodedEmail = encodeURIComponent(userEmail);
       
-      // Redirect to student dashboard with email parameter
-      window.location.href = `https://elevate-ai-xi.vercel.app/student/dashboard?email=${encodedEmail}`;
-    }
-  }, [user, isLoaded]);
+  //     // Redirect to student dashboard with email parameter
+  //     window.location.href = `https://elevate-ai-xi.vercel.app/student/dashboard?email=${encodedEmail}`;
+  //   }
+  // }, [user, isLoaded]);
 
   const sanitizeJSON = (rawJSON) => {
     try {

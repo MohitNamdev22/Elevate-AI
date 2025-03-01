@@ -1,18 +1,25 @@
 "use client"
-import { SignIn, useAuth } from "@clerk/nextjs";
+import { SignIn, useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function Page() {
   const { isSignedIn } = useAuth();
-  const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
 
   useEffect(() => {
-    if (isSignedIn) {
-      router.push("/dashboard");
+    // Only handle redirection for already signed-in users
+    if (isLoaded && isSignedIn && user?.primaryEmailAddress?.emailAddress) {
+      const userEmail = user.primaryEmailAddress.emailAddress;
+      localStorage.setItem('userEmail', userEmail);
+      const encodedEmail = encodeURIComponent(userEmail);
+      window.location.replace(`https://elevate-ai-xi.vercel.app/student/dashboard?email=${encodedEmail}`);
     }
-  }, [isSignedIn]);
+  }, [isLoaded, isSignedIn, user]);
+
 
   return (
     <section className="bg-white dark:bg-gray-900">
@@ -87,7 +94,19 @@ export default function Page() {
             </div>
             <div className="h-12"></div>
 
-            <SignIn />
+            <SignIn 
+      routing="path"
+      path="/sign-in"
+      afterSignInUrl={`https://elevate-ai-xi.vercel.app/student/dashboard`}
+      signUpUrl="/sign-up"
+      appearance={{
+        elements: {
+          rootBox: {
+            display: isRedirecting ? 'none' : 'block'
+          }
+        }
+      }}
+    />
           </div>
         </main>
       </div>

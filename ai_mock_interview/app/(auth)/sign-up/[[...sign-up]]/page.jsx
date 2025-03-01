@@ -1,18 +1,59 @@
 "use client"
-import { SignUp, useAuth } from "@clerk/nextjs";
+import { SignUp, useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState
+ } from "react";
 import Image from "next/image";
 
 export default function Page() {
   const { isSignedIn } = useAuth();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    if (isSignedIn) {
-      router.push("/dashboard");
-    }
-  }, [isSignedIn]);
+    const handleRedirection = async () => {
+      try {
+        if (!hasRedirected && isLoaded && isSignedIn) {
+          
+          setHasRedirected(true);
+          await new Promise(resolve => setTimeout(resolve, 500));
+          window.location.replace(`https://elevate-ai-xi.vercel.app/student/dashboard`);
+        }
+      } catch (error) {
+        console.error('Redirection error:', error);
+      }
+    };
+
+    handleRedirection();
+  }, [isSignedIn, user, isLoaded, hasRedirected]);
+
+
+  useEffect(() => {
+    const handleRedirection = async () => {
+      try {
+        if (!hasRedirected && isSignedIn) {
+          console.log('User is signed in');
+          setHasRedirected(true);
+          // Add a small delay before redirection
+          await new Promise(resolve => setTimeout(resolve, 500));
+          window.location.replace('https://elevate-ai-xi.vercel.app/signup');
+        }
+      } catch (error) {
+        console.error('Redirection error:', error);
+      }
+    };
+
+    handleRedirection();
+  }, [isSignedIn, hasRedirected]);
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('Auth State:', {
+      isSignedIn,
+      hasRedirected
+    });
+  }, [isSignedIn, hasRedirected]);
 
   return (
     <section className="bg-white dark:bg-gray-900">
