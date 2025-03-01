@@ -4,15 +4,25 @@ import {
     ArcElement, 
     CategoryScale,
     LinearScale,
-    BarElement
+    BarElement,
+    Tooltip,     // Add this
+    Legend  
   } from 'chart.js';
 import { useEffect, useState } from "react";
   import { Doughnut, Bar } from 'react-chartjs-2';
   import { Link } from "react-router-dom";
+  import { format, differenceInDays } from 'date-fns';
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.onrender.com';
 
+  ChartJS.register(
+    ArcElement, 
+    CategoryScale, 
+    LinearScale, 
+    BarElement,
+    Tooltip,
+    Legend
+);
 
-ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement);
 
 const RecruiterDashboard = () => {
     const [userData, setUserData] = useState(null);
@@ -23,6 +33,7 @@ const RecruiterDashboard = () => {
     const [totalApplicants, setTotalApplicants] = useState(0);
     const [averageApplications, setAverageApplications] = useState(0);
     const [applicants, setApplicants] = useState([]);
+    const [recentApplicants, setRecentApplicants] = useState([]);
 
 
 
@@ -36,47 +47,44 @@ const RecruiterDashboard = () => {
                 const userData = await userResponse.json();
                 setUserData(userData);
 
-                // Fetch jobs by recruiter ID
+                // Fetch jobs and applicants data
                 const jobsResponse = await fetch(`${API_BASE_URL}/api/internships/recruiter/${userId}`);
                 const jobsData = await jobsResponse.json();
                 setJobs(jobsData);
                 setTotalJobs(jobsData.length);
 
+                // Fetch applicants data
+                const applicantsResponse = await fetch(`${API_BASE_URL}/api/internships/${userId}/applicants1`);
+                const applicantsData = await applicantsResponse.json();
+                setRecentApplicants(applicantsData);
+
                 // Calculate stats
-                const totalApplicantsCount = jobsData.reduce((acc, job) => acc + (job.applicants?.length || 0), 0);
+                const totalApplicantsCount = applicantsData.reduce(
+                    (acc, job) => acc + job.applicants.length, 
+                    0
+                );
                 setTotalApplicants(totalApplicantsCount);
-                setAverageApplications(jobsData.length ? totalApplicantsCount / jobsData.length : 0);
+                setAverageApplications(
+                    jobsData.length ? totalApplicantsCount / jobsData.length : 0
+                );
 
-                // Get application statuses for bar chart
-                const applicationStatuses = jobsData.reduce((acc, job) => {
-                    job.applicants?.forEach(applicant => {
-                        acc[applicant.status] = (acc[applicant.status] || 0) + 1;
-                    });
-                    return acc;
-                }, {});
-
-                // Update bar chart data
+                // Calculate application status distribution
+                const statusData = calculateApplicationStatus(applicantsData);
                 setBarData({
-                    labels: Object.keys(applicationStatuses),
+                    labels: Object.keys(statusData),
                     datasets: [{
-                        data: Object.values(applicationStatuses),
+                        data: Object.values(statusData),
                         backgroundColor: '#3B82F6',
                         borderRadius: 8,
                     }]
                 });
 
-                // Get skills distribution for doughnut chart
-                const skillsDistribution = {};
-                jobsData.forEach(job => {
-                    const category = job.category;
-                    skillsDistribution[category] = (skillsDistribution[category] || 0) + 1;
-                });
-
-                // Update doughnut chart data
+                // Calculate job categories distribution
+                const categoriesData = calculateJobCategories(jobsData);
                 setDoughnutData({
-                    labels: Object.keys(skillsDistribution),
+                    labels: Object.keys(categoriesData),
                     datasets: [{
-                        data: Object.values(skillsDistribution),
+                        data: Object.values(categoriesData),
                         backgroundColor: [
                             '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#6366F1'
                         ],
@@ -94,6 +102,32 @@ const RecruiterDashboard = () => {
 
         fetchData();
     }, []);
+
+    const calculateApplicationStatus = (applicantsData) => {
+        const statuses = {
+            'Pending': 0,
+            'Reviewing': 0,
+            'Shortlisted': 0,
+            'Hired': 0
+        };
+
+        applicantsData.forEach(job => {
+            job.applicants.forEach(applicant => {
+                const status = applicant.status || 'Pending';
+                statuses[status] = (statuses[status] || 0) + 1;
+            });
+        });
+
+        return statuses;
+    };
+
+    const calculateJobCategories = (jobsData) => {
+        return jobsData.reduce((acc, job) => {
+            const category = job.category || 'Other';
+            acc[category] = (acc[category] || 0) + 1;
+            return acc;
+        }, {});
+    };
 
     const [barData, setBarData] = useState({
         labels: [],
@@ -228,22 +262,32 @@ if (error) {
                     </div>
                 </div>
 
-                  {/* Active Job Listings */}
-                  <div className="mb-8">
+                   {/* Active Job Listings */}
+                <div className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-semibold">Active Job Listings</h3>
+                        <Link to="/recruiter/opportunity-listing" className="text-blue-600 text-sm">
+                            View All
+                        </Link>
                     </div>
                     <div className="grid grid-cols-3 gap-6">
-                        {jobs.map((job, index) => (
-                            <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
+                        {jobs.slice(0, 6).map((job) => (
+                            <div key={job._id} className="bg-white p-4 rounded-lg shadow-sm">
                                 <h4 className="font-semibold mb-2">{job.title}</h4>
                                 <div className="flex justify-between text-sm text-gray-600 mb-3">
-                                    <span>Applications: {job.applicants.length}</span>
-                                    <span>Active for {Math.floor((new Date() - new Date(job.posted_time)) / (1000 * 60 * 60 * 24))} days</span>
+                                    <span>Applications: {job.applicants?.length || 0}</span>
+                                    <span>
+                                        {job.posted_time ? 
+                                            `Active for ${differenceInDays(new Date(), new Date(job.posted_time))} days` :
+                                            'Recently posted'
+                                        }
+                                    </span>
                                 </div>
-                                <button className="text-blue-600 text-sm hover:underline">
-                                    View Details
-                                </button>
+                                <Link to={`/recruiter/opportunity-listing/edit/${job._id}`}>
+                                    <button className="text-blue-600 text-sm hover:underline">
+                                        View Details
+                                    </button>
+                                </Link>
                             </div>
                         ))}
                     </div>
@@ -251,6 +295,12 @@ if (error) {
 
                   {/* Recent Applications Table */}
                   <div className="bg-white rounded-lg shadow-sm p-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-semibold">Recent Applications</h3>
+                        <Link to="/recruiter/candidates" className="text-blue-600 text-sm">
+                            View All Applications
+                        </Link>
+                    </div>
                     <table className="w-full">
                         <thead>
                             <tr className="text-left text-gray-600 text-sm">
@@ -259,21 +309,31 @@ if (error) {
                                 <th className="pb-4">JOB TITLE</th>
                                 <th className="pb-4">UNIVERSITY</th>
                                 <th className="pb-4">GRADUATION YEAR</th>
+                                <th className="pb-4">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {applicants?.map((job, index) => (
-                                job.applicants.map((applicant, applicantIndex) => (
-                                    <tr key={`${index}-${applicantIndex}`} className="border-t">
+                            {recentApplicants.slice(0, 5).map((job) => 
+                                job.applicants.map((applicant) => (
+                                    <tr key={applicant._id} className="border-t">
                                         <td className="py-4">{applicant.fullName}</td>
                                         <td>{applicant.email}</td>
                                         <td>{job.jobTitle}</td>
-                                        <td>{applicant.studentDetails.collegeName}</td>
-                                        
-                                        <td>{applicant.studentDetails.yearOfStudy}</td>
+                                        <td>{applicant.studentDetails?.collegeName}</td>
+                                        <td>{applicant.studentDetails?.yearOfStudy}</td>
+                                        <td>
+                                            <div className="flex gap-2">
+                                                <button className="text-blue-600 text-sm hover:underline">
+                                                    View Profile
+                                                </button>
+                                                <button className="text-green-600 text-sm hover:underline">
+                                                    Contact
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

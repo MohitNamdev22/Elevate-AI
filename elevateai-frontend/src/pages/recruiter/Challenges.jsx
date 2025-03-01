@@ -52,7 +52,7 @@ const HiringChallenges = () => {
             <h1 className="text-2xl font-semibold">Engage Talent with Hiring Challenges</h1>
             <p className="text-gray-600">Organize, evaluate, and recruit the best talent through competitive hiring challenges designed for real-world problem solvers.</p>
           </div>
-          <Link to="/challenges/new">
+          <Link to="/recruiter/challenges/create-challenge">
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
               <FaPlus /> Create New Challenge
             </button>
@@ -141,7 +141,7 @@ const CreateChallenge = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            <Link to="/challenges" className="text-gray-600 hover:text-gray-800">
+            <Link to="/recruiter/challenges" className="text-gray-600 hover:text-gray-800">
               <FaArrowLeft />
             </Link>
             <h1 className="text-2xl font-semibold">Create a New Hiring Challenge</h1>
