@@ -23,7 +23,10 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
   const webcamRef = useRef(null); // Added reference for the webcam
   const [modelsLoaded, setModelsLoaded] = useState(false); // Added to track model loading
   const [referenceDescriptor, setReferenceDescriptor] = useState(null); // Store reference face descriptor
-
+  toast.custom = {
+    position: "top-right", // you can use: top-left, top-right, bottom-left, bottom-right
+    className: "z-50",
+  };
   // Function to capture reference image and create face descriptor
   const captureReferenceImage = async () => {
     if (!webcamRef.current || !webcamRef.current.video) return;
