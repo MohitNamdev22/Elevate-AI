@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import {useEffect} from 'react';
+import { toast } from 'react-toastify';
 import { 
   FaRegCalendarAlt,
   FaPlus,
@@ -21,7 +22,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elevate-ai.on
 
 const ManageSessions = () => {
   const [slots, setSlots] = useState([]);
-  
+  const [errorMessage, setErrorMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(-1);
   const [studentDetails, setStudentDetails] = useState({});
@@ -85,7 +86,7 @@ const ManageSessions = () => {
     startTime: new Date(),
     endTime: new Date(),
     sessionType: 'One-on-One',
-    recurrence: 'none',
+    recurrence: 'None',
     description: '',
     maxParticipants: 4
   });
@@ -100,69 +101,48 @@ const ManageSessions = () => {
   
   const [description, setDescription] = useState('');
 
+  
+
   const handleCreateSlot = async () => {
     try {
+      const mentorId = localStorage.getItem('userId');
       
-      const mentorId = localStorage.getItem('userId'); // Get mentorId from localStorage
-      
-      // Format the date and time
-      const formattedDate = newSlot.date.toISOString().split('T')[0];
-      const formattedStartTime = newSlot.startTime.toLocaleTimeString([], { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        hour12: true 
-      });
-      const formattedEndTime = newSlot.endTime.toLocaleTimeString([], { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        hour12: true 
-      });
-  
+      // Format the date and time properly
       const sessionData = {
         mentorId,
-        date: formattedDate,
-        startTime: formattedStartTime,
-        endTime: formattedEndTime,
+        title: "Mentorship Session",
+        date: newSlot.date.toISOString().split('T')[0],
+        startTime: newSlot.startTime.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        }),
+        endTime: newSlot.endTime.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        }),
         sessionType: newSlot.sessionType,
         recurrence: newSlot.recurrence,
-        description: newSlot.description,
-        maxParticipants: newSlot.maxParticipants
+        description: newSlot.description || '',
+        maxParticipants: newSlot.maxParticipants || 
+          (newSlot.sessionType === 'One-on-One' ? 1 : 4)
       };
   
       const response = await axios.post(`${API_BASE_URL}/api/mentors/sessions`, sessionData);
+
+  
+      console.log('Response:', response.data); // Debug log
   
       if (response.data) {
-        // Update local state with new slot
-        fetchAvailableSlots();
-  
-  setSuccessMessage('Session created successfully!');
-        if (editingIndex === -1) {
-          setSlots([...slots, response.data]);
-        } else {
-          const updatedSlots = [...slots];
-          updatedSlots[editingIndex] = response.data;
-          setSlots(updatedSlots);
-          setEditingIndex(-1);
-        }
-  
-        // Reset form
+        toast.success('Session created successfully!');
         setShowForm(false);
-        setNewSlot({
-          date: new Date(),
-          startTime: new Date(),
-          endTime: new Date(),
-          sessionType: 'One-on-One',
-          recurrence: 'none',
-          description: '',
-          maxParticipants: 4
-        });
-        
-        // Show success message (you'll need to add this state and UI element)
-        alert('Session created successfully!');
+        // Refresh the slots list
+        fetchAvailableSlots();
       }
     } catch (error) {
-      console.error('Error creating session:', error);
-      alert('Failed to create session. Please try again.');
+      console.error('Error creating session:', error.response?.data || error.message);
+      toast.error(error.response?.data?.message || 'Failed to create session');
     }
   };
 
