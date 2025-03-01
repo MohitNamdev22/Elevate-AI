@@ -24,12 +24,12 @@ function DashboardLayout({ children }) {
   };
 
   const menuItems = [
-    { name: "Dashboard", icon: <FaHome />, path: "http://localhost:5173/student/dashboard" },
-    { name: "Roadmaps", icon: <FaMap />, path: "http://localhost:5173/student/roadmaps" },
-    { name: "Opportunities", icon: <FaBriefcase />, path: "http://localhost:5173/student/opportunities" },
+    { name: "Dashboard", icon: <FaHome />, path: "https://elevate-ai-xi.vercel.app/student/dashboard" },
+    { name: "Roadmaps", icon: <FaMap />, path: "https://elevate-ai-xi.vercel.app/student/roadmaps" },
+    { name: "Opportunities", icon: <FaBriefcase />, path: "https://elevate-ai-xi.vercel.app/student/opportunities" },
     { name: "AI-Mock Interviews", icon: <FaUserGraduate />, path: "/dashboard" },
-    { name: "Resume Generator", icon: <FaFileAlt />, path: "http://localhost:5173/student/resume-generator" },
-    { name: "Expert Mentorship", icon: <FaChalkboardTeacher />, path: "http://localhost:5173/student/mentorship" },
+    { name: "Resume Generator", icon: <FaFileAlt />, path: "https://elevate-ai-xi.vercel.app/student/resume-generator" },
+    { name: "Expert Mentorship", icon: <FaChalkboardTeacher />, path: "https://elevate-ai-xi.vercel.app/student/mentorship" },
   ];
 
   return (
