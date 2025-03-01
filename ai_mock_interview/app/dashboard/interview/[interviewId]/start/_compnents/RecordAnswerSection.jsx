@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+'use client';
+import React, { useEffect, useState, useRef } from "react";
+
 import Image from "next/image";
 import Webcam from "react-webcam";
+import * as faceapi from 'face-api.js';
 import { Button } from "@/components/ui/button";
 import useSpeechToText from "react-hook-speech-to-text";
 import { Mic, StopCircle } from "lucide-react";
@@ -17,6 +20,81 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
   const [cameraError, setCameraError] = useState(false);
   const { user } = useUser();
   const [transcribedText, setTranscribedText] = useState("");
+  const webcamRef = useRef(null); // Added reference for the webcam
+  const [modelsLoaded, setModelsLoaded] = useState(false); // Added to track model loading
+  const [referenceDescriptor, setReferenceDescriptor] = useState(null); // Store reference face descriptor
+
+  // Function to capture reference image and create face descriptor
+  const captureReferenceImage = async () => {
+    if (!webcamRef.current || !webcamRef.current.video) return;
+    const video = webcamRef.current.video;
+    const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+
+    if (detections) {
+      setReferenceDescriptor(detections.descriptor);
+      toast("Reference face captured successfully.");
+    } else {
+      toast("No face detected for reference. Please ensure your face is clearly visible.");
+    }
+  };
+
+  // Function to handle face recognition and comparison
+ // Function to handle face recognition and comparison using FaceMatcher
+const runFaceRecognition = async () => {
+  if (!webcamRef.current || !webcamRef.current.video || !referenceDescriptor) return;
+
+  const video = webcamRef.current.video;
+
+  // Detect face in the video stream for recognition
+  const singleResult = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+
+  if (!singleResult) {
+    toast("No face detected. Please ensure your face is visible.");
+    return;
+  }
+
+  // If reference descriptor exists, create a FaceMatcher
+  if (referenceDescriptor) {
+    const labeledDescriptors = [
+      new faceapi.LabeledFaceDescriptors("Reference User", [referenceDescriptor])
+    ];
+    const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.7);
+
+    // Find the best match for the current face descriptor
+    const bestMatch = faceMatcher.findBestMatch(singleResult.descriptor);
+
+    // Check if the label matches "Reference User"
+    if (bestMatch.label === "Reference User") {
+      toast("Face verified successfully.");
+    } else {
+      toast(`Invalid user detected! Match: ${bestMatch.toString()}`);
+    }
+  }
+};
+
+
+  // Load face-api.js models
+  useEffect(() => {
+    const loadModels = async () => {
+      const MODEL_URL = '/models'; // Replace with the path to your models folder
+      try {
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+          faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+        setModelsLoaded(true);
+        toast("Models loaded successfully!");
+      } catch (error) {
+        console.error("Error loading face-api models:", error);
+        toast("Failed to load models.");
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      loadModels();
+    }
+  }, []);
 
 
   const handleUserMediaError = () => {
@@ -27,8 +105,6 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
     setCameraError(false);
   };
 
-
-
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })  // Added "audio: true"
@@ -38,7 +114,6 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
         setCameraError(true);
       });
   }, []);
-
 
   const {
     error,
@@ -63,7 +138,6 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
     }
   }, [results]);
 
-
   useEffect(() => {
     if (!isRecording && userAnswer.length > 10) {
       UpdateUserAnswerInDb();
@@ -79,7 +153,7 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
         throw new Error("Missing required question or answer data");
       }
 
-       const feedbackPrompt = `Generate feedback in JSON format for the following interview response:
+      const feedbackPrompt = `Generate feedback in JSON format for the following interview response:
       Question: ${currentQuestion.question}
       Answer: ${userAnswer}
       
@@ -92,7 +166,6 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
       const result = await chatSession.sendMessage(feedbackPrompt);
       const rawResponse = await result.response.text();
 
-      
       let feedbackResponse;
 
       try {
@@ -141,8 +214,13 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
     }
   };
 
-  console.log(mockInterViewQuestion.questions?.[activeQuestionIndex])
-  console.log(activeQuestionIndex)
+  // Run face recognition every 5 seconds if models are loaded and webcam is active
+  useEffect(() => {
+    if (modelsLoaded && webcamRef.current && referenceDescriptor) {
+      const interval = setInterval(runFaceRecognition, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [modelsLoaded, referenceDescriptor]);
 
   if (!mockInterViewQuestion.questions?.[activeQuestionIndex]) {
     return <div>No active question found. Please check.</div>;
@@ -165,6 +243,7 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
               alt="Webcam background"
             />
             <Webcam
+              ref={webcamRef}
               mirrored={true}
               style={{
                 height: "50vh",
@@ -177,6 +256,15 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
           </>
         )}
       </div>
+
+      <Button
+        disabled={loading}
+        variant="outline"
+        onClick={captureReferenceImage} // Added to capture reference image
+        className="my-4"
+      >
+        Capture Reference Face
+      </Button>
 
       <div className="w-full max-w-2xl mt-5">
         {isRecording && (
@@ -197,32 +285,24 @@ function RecordAnswerSection({ activeQuestionIndex, mockInterViewQuestion, inter
         )}
       </div>
 
-      <Button 
-        disabled={loading} 
-        variant="outline" 
-        onClick={StartStopRecording} 
-        className="my-10"
+      <Button
+        disabled={loading}
+        variant={isRecording ? "destructive" : "default"}
+        className="my-4"
+        onClick={StartStopRecording}
       >
         {isRecording ? (
-          <h2 className="flex items-center justify-center text-red-600 gap-2">
-            <StopCircle />
-            Recording...
-          </h2>
+          <>
+            <StopCircle className="mr-2 h-4 w-4" />
+            Stop Recording
+          </>
         ) : (
-          <h2 className="flex items-center justify-center gap-2">
-            <Mic />
-            {loading ? "Processing..." : "Start Recording"}
-          </h2>
+          <>
+            <Mic className="mr-2 h-4 w-4" />
+            Start Recording
+          </>
         )}
       </Button>
-
-      {/* Add submission status */}
-      {loading && (
-        <div className="text-blue-600 flex items-center gap-2">
-          <div className="animate-spin h-4 w-4 border-2 border-blue-600 rounded-full border-t-transparent" />
-          Processing your answer...
-        </div>
-      )}
     </div>
   );
 }
