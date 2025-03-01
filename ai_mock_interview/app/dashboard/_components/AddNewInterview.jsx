@@ -29,8 +29,17 @@ function AddNewInterview() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoaded) {
-      console.log("User email:", user?.primaryEmailAddress?.emailAddress);
+    if (isLoaded && user?.primaryEmailAddress?.emailAddress) {
+      const userEmail = user.primaryEmailAddress.emailAddress;
+      
+      // Store email in localStorage
+      localStorage.setItem('userEmail', userEmail);
+      
+      // Encode email for URL safety
+      const encodedEmail = encodeURIComponent(userEmail);
+      
+      // Redirect to student dashboard with email parameter
+      window.location.href = `https://elevate-ai-xi.vercel.app/student/dashboard?email=${encodedEmail}`;
     }
   }, [user, isLoaded]);
 
