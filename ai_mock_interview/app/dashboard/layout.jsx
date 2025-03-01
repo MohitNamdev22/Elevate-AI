@@ -28,7 +28,7 @@ function DashboardLayout({ children }) {
     { name: "Roadmaps", icon: <FaMap />, path: "https://elevate-ai-xi.vercel.app/student/roadmaps" },
     { name: "Opportunities", icon: <FaBriefcase />, path: "https://elevate-ai-xi.vercel.app/student/opportunities" },
     { name: "AI-Mock Interviews", icon: <FaUserGraduate />, path: "/dashboard" },
-    { name: "AI Resume Analyzer", icon: <FaFileCode />, path: "/student/resume-analyzer" },
+    { name: "AI Resume Analyzer", icon: <FaFileCode />, path: "https://elevate-ai-xi.vercel.app/student/resume-analyzer" },
     { name: "Resume Generator", icon: <FaFileAlt />, path: "https://elevate-ai-xi.vercel.app/student/resume-generator" },
     { name: "Alumni Mentorship", icon: <FaChalkboardTeacher />, path: "https://elevate-ai-xi.vercel.app/student/mentorship" },
   ];
