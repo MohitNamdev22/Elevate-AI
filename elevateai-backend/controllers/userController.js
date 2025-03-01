@@ -267,6 +267,151 @@ class UserController {
       res.status(500).json({ message: 'Server error fetching top categories and jobs' });
     }
   }
+
+
+  async getUserRegisteredOrNot(req, res) {
+    try {
+        const { email } = req.params;
+
+        // Find the user by email
+        const user = await User.findOne({ email });
+
+        if (user) {
+            return res.status(200).json({ userId: user._id });
+        } else {
+            return res.status(200).json({ userId: null });
+        }
+    } catch (err) {
+        console.error("Error checking user registration:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+async addUserEmail(req, res) {
+  try {
+      const { email } = req.body;
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+          return res.status(400).json({ message: 'User already exists' });
+      }
+
+      // Create new user with only email
+      const newUser = new User({ email });
+
+      // Save user
+      await newUser.save();
+
+      res.status(201).json({ 
+          message: 'User registered successfully with email', 
+          userId: newUser._id 
+      });
+
+  } catch (error) {
+      console.error('User registration error:', error);
+      res.status(500).json({ message: 'Server error during registration' });
+  }
+}
+
+async updateUserByEmail(req, res) {
+  try {
+      const { 
+          email,
+          fullName, 
+          role,
+          phoneNumber,
+          location,
+          profileImage,
+          studentDetails,
+          recruiterDetails,
+          mentorDetails
+      } = req.body;
+
+      // Find the user by email
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Update user fields if they are provided
+      if (fullName) user.fullName = fullName;
+      if (role) user.role = role;
+      if (phoneNumber) user.phoneNumber = phoneNumber;
+      if (location) user.location = location;
+      if (profileImage) user.profileImage = profileImage;
+
+      if (role === 'Student' && studentDetails) {
+          user.studentDetails = {
+              skills: studentDetails.skills ? studentDetails.skills.split(',') : user.studentDetails?.skills,
+              collegeName: studentDetails.university || user.studentDetails?.collegeName,
+              yearOfStudy: studentDetails.yearOfStudy || user.studentDetails?.yearOfStudy,
+              certificates: studentDetails.certificates ? studentDetails.certificates.split(',') : user.studentDetails?.certificates,
+              achievements: studentDetails.achievements || user.studentDetails?.achievements,
+              experience: studentDetails.experience ? studentDetails.experience.map(exp => ({
+                  company: exp.company,
+                  title: exp.title,
+                  description: exp.description,
+                  duration: exp.duration
+              })) : user.studentDetails?.experience,
+              socialProfiles: {
+                  github: studentDetails.githubUrl || user.studentDetails?.socialProfiles?.github,
+                  leetcode: studentDetails.leetcodeUrl || user.studentDetails?.socialProfiles?.leetcode,
+                  codeforces: studentDetails.codeforcesUrl || user.studentDetails?.socialProfiles?.codeforces
+              }
+          };
+      }
+
+      if (role === 'Recruiter' && recruiterDetails) {
+          user.recruiterDetails = {
+              companyName: recruiterDetails.companyName || user.recruiterDetails?.companyName,
+              companyWebsite: recruiterDetails.companyWebsite || user.recruiterDetails?.companyWebsite,
+              industryFocus: recruiterDetails.industryFocus ? recruiterDetails.industryFocus.split(',') : user.recruiterDetails?.industryFocus,
+              jobTitle: recruiterDetails.jobTitle || user.recruiterDetails?.jobTitle,
+              linkedinUrl: recruiterDetails.linkedinUrl || user.recruiterDetails?.linkedinUrl,
+              twitterUrl: recruiterDetails.twitterUrl || user.recruiterDetails?.twitterUrl,
+              professionalSummary: recruiterDetails.professionalSummary || user.recruiterDetails?.professionalSummary,
+              workModel: recruiterDetails.workModel || user.recruiterDetails?.workModel,
+              yearsOfExperience: recruiterDetails.yearsOfExperience || user.recruiterDetails?.yearsOfExperience,
+              githubUrl: recruiterDetails.githubUrl || user.recruiterDetails?.githubUrl
+          };
+      }
+
+      if (role === 'Mentor' && mentorDetails) {
+          user.mentorDetails = {
+              aboutMe: mentorDetails.aboutMe || user.mentorDetails?.aboutMe,
+              availableSlots: mentorDetails.availableSlots || user.mentorDetails?.availableSlots,
+              degree: mentorDetails.degree || user.mentorDetails?.degree,
+              experienceLevel: mentorDetails.experienceLevel || user.mentorDetails?.experienceLevel,
+              hourlyRate: mentorDetails.hourlyRate || user.mentorDetails?.hourlyRate,
+              jobTitle: mentorDetails.jobTitle || user.mentorDetails?.jobTitle,
+              linkedinUrl: mentorDetails.linkedinUrl || user.mentorDetails?.linkedinUrl,
+              organization: mentorDetails.organization || user.mentorDetails?.organization,
+              responseTime: mentorDetails.responseTime || user.mentorDetails?.responseTime,
+              technicalSkills: mentorDetails.technicalSkills ? mentorDetails.technicalSkills.split(',') : user.mentorDetails?.technicalSkills,
+              university: mentorDetails.university || user.mentorDetails?.university,
+              year: mentorDetails.year || user.mentorDetails?.year,
+              professionalLinks: {
+                  linkedin: mentorDetails.linkedinUrl || user.mentorDetails?.professionalLinks?.linkedin,
+                  github: mentorDetails.githubUrl || user.mentorDetails?.professionalLinks?.github,
+                  personalWebsite: mentorDetails.personalWebsite || user.mentorDetails?.professionalLinks?.personalWebsite
+              }
+          };
+      }
+
+      // Save the updated user
+      await user.save();
+
+      res.status(200).json({ 
+          message: 'User updated successfully', 
+          userId: user._id 
+      });
+
+  } catch (error) {
+      console.error('User update error:', error);
+      res.status(500).json({ message: 'Server error during update' });
+  }
+}
 }
 
 module.exports = new UserController();
