@@ -267,6 +267,26 @@ class UserController {
       res.status(500).json({ message: 'Server error fetching top categories and jobs' });
     }
   }
+
+
+  async getUserRegisteredOrNot(req, res) {
+    try {
+        const { email } = req.params;
+
+        // Find the user by email
+        const user = await User.findOne({ email });
+
+        if (user) {
+            return res.status(200).json({ userId: user._id });
+        } else {
+            return res.status(200).json({ userId: null });
+        }
+    } catch (err) {
+        console.error("Error checking user registration:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 }
 
 module.exports = new UserController();

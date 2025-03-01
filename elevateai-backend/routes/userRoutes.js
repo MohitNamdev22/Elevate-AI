@@ -21,6 +21,8 @@ router.post('/top-categories', UserController.getTopCategories);
 // Route to get job recommendations based on top categories
 router.post('/top-categories-and-jobs', UserController.getTopCategoriesAndJobs);
 
+router.get("/registeredUser/:email",UserController.getUserRegisteredOrNot)
+
 
 
 module.exports = router;
